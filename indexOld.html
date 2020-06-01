@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>covid backtracking</title>
+
+    <style type="text/css">/* Chart.js */
+      h1, h2, h3, h4, p, ul, li {
+        font-family: 'News Cycle', sans-serif;
+      }
+
+      body {
+        background-color: rgba(240, 240, 240, 1.0);
+      }
+
+      .logo, .signup {
+        display: block;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        width: 10%;
+      }
+
+      .issues {
+        margin-left: 50px;
+        margin-bottom: 50px;
+      }
+
+      .info {
+        margin-left: 30px;
+        margin-top: -15px;
+      }
+
+
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=News+Cycle:400,700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/public/favicon.png">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+
+  </head>
+
+  <body>
+    <div id="app">
+      <div>
+        <a href="/"><img class="logo" src="https://covidactnow.org/static/media/can_logo.0ac0983b.png"></a>
+      </div>
+
+      <canvas id="myChart" width="400" height="400"></canvas>
+
+      <h2>PROJECTIONS: 04-14-2020 COMMIT</h2>
+      <table class="table" id="projections">
+        <thead class="thead-dark table-striped">
+          <tr>
+            <th scope="col">date</th>
+            <th scope="col">hospitalizations</th>
+            <th scope="col">deaths</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+      <h2>ACTUALS</h2>
+      <table class="table" id="actuals">
+        <thead class="thead-dark table-striped">
+          <tr>
+            <th scope="col">date</th>
+            <th scope="col">hospitalizations</th>
+            <th scope="col">deaths</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+      <h2>MARGIN OF ERROR</h2>
+      <table class="table" id="margins">
+        <thead class="thead-dark table-striped">
+          <tr>
+            <th scope="col">date</th>
+            <th scope="col">hospitalizations</th>
+            <th scope="col">deaths</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+
+    </div>
+  </body>
+
+  <script type="text/javascript">
+    let dates = [];
+    let projectionData = [];
+    let projectionObject = {};
+    let actualData = [];
+    fetch('/public/data/projections/04-14-2020/CA.json')
+      .then(response => response.json())
+      .then(json => {
+        const projections = document.getElementById("projections");
+        projectionData = json.reverse();
+        for (i in projectionData) {
+          let data = json[i];
+          let row = projections.insertRow(1);
+          let cell1 = row.insertCell(0);
+          let cell2 = row.insertCell(1);
+          let cell3 = row.insertCell(2);
+          cell1.innerHTML = data.date;
+          cell2.innerHTML = Math.round(data.hospitalizations);
+          cell3.innerHTML = Math.round(data.death);
+          dates.push(data.date)
+          projectionObject[data.date] = {
+            hospitalizations:data.hospitalizations,
+            death: data.death
+          }
+        }
+
+
+
+    });
+
+    fetch('/public/data/actual/CA.json')
+      .then(response => response.json())
+      .then(json => {
+        const actuals = document.getElementById("actuals");
+        let actualData = json.reverse().filter(data => {
+          if (dates.includes(data.date)) return data
+        })
+
+        for (i in actualData) {
+            let data = actualData[i];
+            let row = actuals.insertRow(1);
+            let cell1 = row.insertCell(0);
+            let cell2 = row.insertCell(1);
+            let cell3 = row.insertCell(2);
+            cell1.innerHTML = data.date;
+            cell2.innerHTML = data.hospitalizations;
+            cell3.innerHTML = data.death;
+        }
+
+        const margins = document.getElementById("margins");
+        let marginData = actualData.map((data,index) => {
+          return {
+            date: data.date,
+            hospitalizations: Math.round(projectionObject[data.date].hospitalizations) - data.hospitalizations,
+            death: Math.round(projectionObject[data.date].death) - data.death,
+          }
+        });
+        for (i in marginData) {
+            let data = marginData[i];
+            let row = margins.insertRow(1);
+            let cell1 = row.insertCell(0);
+            let cell2 = row.insertCell(1);
+            let cell3 = row.insertCell(2);
+            cell1.innerHTML = data.date;
+            cell2.innerHTML = data.hospitalizations;
+            cell3.innerHTML = data.death;
+        }
+        console.log(projectionData, actualData, marginData);
+        console.log(actualData.map(data => data.hospitalizations))
+
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: actualData.reverse().map(data => data.date),
+                backgroundColor: "red",
+                borderColor: "red",
+                datasets: [{
+                    label: '# of actual hospitalizations',
+                    data: actualData.reverse().map(data => data.hospitalizations),
+                    fill: false
+                },
+                {
+                  label: '# of projected hospitalizations',
+                    backgroundColor: "blue",
+                    borderColor: "blue",
+                    data: projectionData.reverse().map(data => data.hospitalizations),
+                    fill: false
+                },
+                ],
+              },
+        });
+    });
+</script>
+</html>
