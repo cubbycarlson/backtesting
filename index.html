@@ -344,8 +344,8 @@
                     datasets: [
                       {
                         label: labels.projectionLabel || '',
-                        backgroundColor: 'rgb(94,204,132)',
-                        borderColor: 'rgb(94,204,132)',
+                        backgroundColor: labels.color || 'rgb(94,204,132)',
+                        borderColor: labels.color || 'rgb(94,204,132)',
                         data: projectionData,
                         fill: false
                       },
@@ -405,7 +405,8 @@
             hospitalizationMarginsChart = makeChart('hospitalizationsMargin', dates, marginHospitalizations, {
               title: 'hospitalizations margin of error',
               yAxis: 'hospitalizations (#)',
-              legend: false
+              legend: false,
+              color: 'red'
             })
 
             deathsChart = makeChart('deaths', dates, projectionDeaths, {
@@ -419,7 +420,8 @@
             deathsMarginChart = makeChart('deathsMargin', dates, marginDeaths, {
               title: 'deaths margin of error',
               yAxis: 'deaths (#)',
-              legend: false
+              legend: false,
+              color: 'red'
             });
 
             let cumulativeErrorD = deathMarginsArray.reduce((a,b) => Math.abs(a) + Math.abs(b))
