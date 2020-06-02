@@ -25,7 +25,8 @@ app.get('/repop', (req, res) => {
   }
 
   populateAllData();
-  res.redirect('/')
+  res.send("repop!");
+  // res.redirect('/')
   // res.sendFile(path.join(__dirname + '/html/index.html'));
 })
 

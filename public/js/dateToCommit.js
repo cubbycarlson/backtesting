@@ -1,5 +1,3 @@
-// NOTE TO SELF: WHY ARE THESE DATES SO INCONSISTENT/SOME COMMENTED OUT? WHAT ARE THESE STRINGS?
-
 const dateToCommit = {
   '03-19-2020': 'da541531b70899263526ac2e061c7d87412cdc5c',
   '03-23-2020': '5c67d6247bdfc804eb9a4250ffeaf10382dd1fed',
@@ -11,3 +9,10 @@ const dateToCommit = {
   '04-12-2020': '645ae78673bddd1dce3c7c1cf9062b75aca9b306',
   '04-14-2020': 'da3e034c5602eeb1a1398d01251c93b7e4c51b70'
  }
+
+const modelNameObject = {
+"04-14-2020": "Initial Inference (04/14/2020 Commit)",
+"04-12-2020": "Grand Rapids (04/12/2020 Commit)",
+"04-06-2020": "New Model/SEIR (04-06-2020 Commit)",
+"03-27-2020": "Excel (03-27-2020)"
+}

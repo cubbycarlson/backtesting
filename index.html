@@ -85,17 +85,20 @@
         <form onsubmit="return false">
           <div class="form-row">
             <div class="select">
-              <label for="commitDate">commit date</label>
+              <label for="commitDate">model</label>
               <select id="commitDate" class="custom-select custom-select-sm">
-                <option value="04-14-2020">04-14-2020</option>
-                <option value="04-12-2020">04-12-2020</option>
-                <option value="04-09-2020">04-09-2020</option>
-                <option value="04-06-2020">04-06-2020</option>
-                <option value="04-04-2020">04-04-2020</option>
-                <option value="03-31-2020">03-31-2020</option>
-                <option value="03-27-2020">03-27-2020</option>
-                <option value="03-23-2020">03-23-2020</option>
-                <option value="03-19-2020">03-19-2020</option>
+                <option value="04-14-2020">Initial Inference (04/14/2020 Commit)</option>
+                <option value="04-12-2020">Grand Rapids (04/12/2020 Commit)</option>
+                <option value="04-06-2020">New Model/SEIR (04-06-2020 Commit)</option>
+                <option value="03-27-2020">Excel (03-27-2020)</option>
+              </select>
+            </div>
+            <div class="select">
+              <label for="intervention">intervention</label>
+              <select id="intervention" class="custom-select custom-select-sm">
+                <option value="0">No Action</option>
+                <option value="3">Lax Shelter-in-Place</option>
+                <option value="1" selected>Strict Shelter-in-Place</option>
               </select>
             </div>
             <div class="select">
@@ -213,9 +216,7 @@
 
   let hospitalizationsChart, hospitalizationMarginsChart, deathsChart, deathsMarginChart;
 
-
-  function loadData(selectedCommitDate, selectedState) {
-
+  function loadData(selectedCommitDate, selectedState, intervention) {
     let projectionDate = selectedCommitDate;
     let state = selectedState;
 
@@ -229,7 +230,13 @@
 
     let dataObject = {}; // array of date object
 
-    fetch('/public/data/projections/' + projectionDate + '/' + state + '.json')
+    let interventionsNames = {
+      "0": "No Action",
+      "3": "Lax Shelter-in-Place",
+      "1": "Strict Shelter-in-Place"
+    }
+
+    fetch('/public/data/projections/' + projectionDate + '/' + intervention + '/' + state + '.json')
     // fetch('/public/data/projections/03-19-2020/CA.json')
       .then(response => response.json())
       .then(json => {
@@ -362,7 +369,7 @@
                     responsive: false,
                     title: {
                       display: true,
-                      text: labels.title || ""
+                      text: [modelNameObject[selectedCommitDate], interventionsNames[intervention], labels.title] || ""
                     },
 
                     scales: {
@@ -397,13 +404,13 @@
             hospitalizationsChart = makeChart('hospitalizations', dates, projectionHospitalizations, {
               projectionLabel: 'Projected',
               actualLabel: "Actual",
-              title: "hospitalizations",
+              title: "hospitalizations (daily)",
               yAxis: 'hospitalizations (#)',
               legend: true
             }, actualHospitalizations)
 
             hospitalizationMarginsChart = makeChart('hospitalizationsMargin', dates, marginHospitalizations, {
-              title: 'hospitalizations margin of error',
+              title: 'hospitalizations (daily) margin of error',
               yAxis: 'hospitalizations (#)',
               legend: false,
               color: 'red'
@@ -412,13 +419,13 @@
             deathsChart = makeChart('deaths', dates, projectionDeaths, {
               projectionLabel: 'Projected',
               actualLabel: "Actual",
-              title: 'deaths',
+              title: 'deaths (cumulative)',
               yAxis: 'deaths (#)',
               legend: true
             }, actualDeaths)
 
             deathsMarginChart = makeChart('deathsMargin', dates, marginDeaths, {
-              title: 'deaths margin of error',
+              title: 'deaths (cumulative) margin of error',
               yAxis: 'deaths (#)',
               legend: false,
               color: 'red'
@@ -437,11 +444,13 @@
       });
     }
 
-    loadData("04-14-2020", "US");
+    loadData("04-14-2020", "US", 1);
 
     function newData () {
       var selectedCommitDate = document.getElementById('commitDate').value;
       var selectedState = document.getElementById('state').value;
+      var intervention = document.getElementById('intervention').value;
+
       var rowLength = document.getElementById("data").rows.length;
       for (let i = 2; i < rowLength; i++) {
         document.getElementById('data').deleteRow(2)
@@ -457,7 +466,7 @@
       deathsChart.destroy()
       deathsMarginChart.destroy()
 
-      loadData(selectedCommitDate, selectedState);
+      loadData(selectedCommitDate, selectedState, intervention);
     }
 </script>
 </html>
