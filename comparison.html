@@ -85,15 +85,6 @@
         <form onsubmit="return false">
           <div class="form-row">
             <div class="select">
-              <label for="commitDate">model</label>
-              <select id="commitDate" class="custom-select custom-select-sm">
-                <option value="04-14-2020">Initial Inference (04/14/2020 Commit)</option>
-                <option value="04-12-2020">Grand Rapids (04/12/2020 Commit)</option>
-                <option value="04-06-2020">New Model/SEIR (04-06-2020 Commit)</option>
-                <option value="03-27-2020">Excel (03-27-2020)</option>
-              </select>
-            </div>
-            <div class="select">
               <label for="intervention">intervention</label>
               <select id="intervention" class="custom-select custom-select-sm">
                 <option value="0">No Action</option>
@@ -163,22 +154,6 @@
         </form>
       </div>
 
-      <div class="chartContainer">
-        <canvas id="hospitalizations" width="350" height="350"></canvas>
-      </div>
-
-      <div class="chartContainer">
-      <canvas id="hospitalizationsMargin" width="350" height="350"></canvas>
-      </div>
-
-      <div class="chartContainer">
-      <canvas id="deaths" width="350" height="350"></canvas>
-      </div>
-
-      <div class="chartContainer">
-      <canvas id="deathsMargin"width="350" height="350"></canvas>
-      </div>
-
       <div class="row justify-content center" id="bigTable">
         <table class="table table-small table-bordered" id="data">
           <caption>
@@ -190,18 +165,37 @@
           <thead>
            <tr>
              <th colspan="1"></th>
-             <th colspan="2">Projection</th>
-             <th colspan="2">Actual</th>
-             <th colspan="2">Margin Of Error</th>
+             <th colspan="2"></th>
+             <th colspan="16">Projections for <span id="stateText"></span></th>
            </tr>
            <tr>
+             <th colspan="1"></th>
+             <th colspan="2">Actual</th>
+             <th colspan="4">Initial Inference</th>
+             <th colspan="4">Grand Rapids</th>
+             <th colspan="4">New Model / SEIR</th>
+             <th colspan="4">Excel</th>
+            </tr>
+           <tr>
              <th>Date</th>
+             <th>Death</th>
              <th>Hospitalizations</th>
-             <th>Deaths</th>
+             <th>Death</th>
+             <th>Death Margin of Error</th>
              <th>Hospitalizations</th>
-             <th>Deaths</th>
+             <th>Hospitalizations Margin of Error</th>
+             <th>Death</th>
+             <th>Death Margin of Error</th>
              <th>Hospitalizations</th>
-             <th>Deaths</th>
+             <th>Hospitalizations Margin of Error</th>
+             <th>Death</th>
+             <th>Death Margin of Error</th>
+             <th>Hospitalizations</th>
+             <th>Hospitalizations Margin of Error</th>
+             <th>Death</th>
+             <th>Death Margin of Error</th>
+             <th>Hospitalizations</th>
+             <th>Hospitalizations Margin of Error</th>
             </tr>
          </thead>
          <tbody>
@@ -216,7 +210,7 @@
 
   let hospitalizationsChart, hospitalizationMarginsChart, deathsChart, deathsMarginChart;
 
-  function loadData(selectedCommitDate, selectedState, intervention) {
+  function loadData(selectedState, intervention, selectedCommitDate = "04-14-2020") {
     let projectionDate = selectedCommitDate;
     let state = selectedState;
 
@@ -296,7 +290,7 @@
 
             for (data in dataObject) {
               let rowData = dataObject[data];
-              let row = dataTable.insertRow(2);
+              let row = dataTable.insertRow(3);
               let cell1 = row.insertCell(0);
               let cell2 = row.insertCell(1);
               let cell3 = row.insertCell(2);
@@ -306,12 +300,12 @@
               let cell7 = row.insertCell(6);
 
               cell1.innerHTML = rowData.date;
-              cell2.innerHTML = rowData.projection.hospitalizations;
-              cell3.innerHTML = rowData.projection.death;
-              cell4.innerHTML = rowData.actual.hospitalizations;
-              cell5.innerHTML = rowData.actual.death;
-              cell6.innerHTML = rowData.margin.hospitalizations;
-              cell7.innerHTML = rowData.margin.death;
+              cell2.innerHTML = rowData.actual.death;
+              cell3.innerHTML = rowData.actual.hospitalizations;
+              cell4.innerHTML = rowData.projection.death;
+              cell5.innerHTML = rowData.margin.death;
+              cell6.innerHTML = rowData.projection.hospitalizations;
+              cell7.innerHTML = rowData.margin.hospitalizations;
             }
 
             // console.log(dataObject);
@@ -342,95 +336,6 @@
             marginHospitalizations.reverse();
             marginDeaths.reverse();
 
-            function makeChart(id, dates, projectionData, labels, actualData) {
-              let ctx = document.getElementById(id).getContext('2d');
-              let chart = new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                    labels: dates,
-                    datasets: [
-                      {
-                        label: labels.projectionLabel || '',
-                        backgroundColor: labels.color || 'rgb(94,204,132)',
-                        borderColor: labels.color || 'rgb(94,204,132)',
-                        data: projectionData,
-                        fill: false
-                      },
-                      {
-                        label: labels.actualLabel || '',
-                        backgroundColor: 'black',
-                        borderColor: 'black',
-                        data: actualData || [],
-                        fill: false
-                      }
-                    ]
-                  },
-                  options: {
-                    responsive: false,
-                    title: {
-                      display: true,
-                      text: [modelNameObject[selectedCommitDate], interventionsNames[intervention], labels.title] || ""
-                    },
-
-                    scales: {
-                        xAxes: [{
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'date'
-                            },
-                            // ticks: {
-                            //     autoSkip: true,
-                            //     minRotation: 30,
-                            //     fontSize: 10
-                            // }
-                        }],
-                        yAxes: [{
-                            scaleLabel: {
-                                display: true,
-                                labelString: labels.yAxis || ''
-                            }
-                        }]
-                    },
-                    legend: {
-                        display: labels.legend
-                    },
-                  }
-
-
-              });
-              return chart;
-            }
-
-            hospitalizationsChart = makeChart('hospitalizations', dates, projectionHospitalizations, {
-              projectionLabel: 'Projected',
-              actualLabel: "Actual",
-              title: "Hospitalizations (daily)",
-              yAxis: 'hospitalizations (#)',
-              legend: true
-            }, actualHospitalizations)
-
-            hospitalizationMarginsChart = makeChart('hospitalizationsMargin', dates, marginHospitalizations, {
-              title: 'Hospitalizations (daily) margin of error',
-              yAxis: 'hospitalizations (#)',
-              legend: false,
-              color: 'red'
-            })
-
-            deathsChart = makeChart('deaths', dates, projectionDeaths, {
-              projectionLabel: 'Projected',
-              actualLabel: "Actual",
-              title: 'Deaths (cumulative)',
-              yAxis: 'deaths (#)',
-              legend: true
-            }, actualDeaths)
-
-            deathsMarginChart = makeChart('deathsMargin', dates, marginDeaths, {
-              title: 'Deaths (cumulative) margin of error',
-              yAxis: 'deaths (#)',
-              legend: false,
-              color: 'red'
-            });
-
             let cumulativeErrorD = deathMarginsArray.reduce((a,b) => Math.abs(a) + Math.abs(b))
             let averageErrorD = cumulativeErrorD/deathMarginsArray.length
             let cumulativeErrorH = hospitalizationsMarginsArray.reduce((a,b) => a+b)
@@ -444,16 +349,19 @@
       });
     }
 
-    loadData("04-14-2020", "US", 1);
+    document.getElementById('stateText').innerHTML = 'US'
+    loadData("US", 1);
 
     function newData () {
-      var selectedCommitDate = document.getElementById('commitDate').value;
       var selectedState = document.getElementById('state').value;
       var intervention = document.getElementById('intervention').value;
 
+      document.getElementById('stateText').innerHTML = selectedState
+
+
       var rowLength = document.getElementById("data").rows.length;
-      for (let i = 2; i < rowLength; i++) {
-        document.getElementById('data').deleteRow(2)
+      for (let i = 3; i < rowLength; i++) {
+        document.getElementById('data').deleteRow(3)
       }
 
       document.getElementById('cumulativeErrorD').innerHTML = "";
@@ -461,12 +369,7 @@
       document.getElementById('cumulativeErrorH').innerHTML = "";
       document.getElementById('averageErrorH').innerHTML = "";
 
-      hospitalizationsChart.destroy()
-      hospitalizationMarginsChart.destroy()
-      deathsChart.destroy()
-      deathsMarginChart.destroy()
-
-      loadData(selectedCommitDate, selectedState, intervention);
+      loadData(selectedState, intervention);
     }
 </script>
 </html>
