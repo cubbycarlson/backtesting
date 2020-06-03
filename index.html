@@ -88,17 +88,27 @@
               <label for="commitDate">model</label>
               <select id="commitDate" class="custom-select custom-select-sm">
                 <option value="04-14-2020">Initial Inference (04/14/2020 Commit)</option>
-                <option value="04-12-2020">Grand Rapids (04/12/2020 Commit)</option>
+
+                <option value="04-12-2020">Grand Rounds (04/12/2020 Commit)</option>
+                <option value="04-09-2020">Grand Rounds (04/09/2020 Commit)</option>
+
                 <option value="04-06-2020">New Model/SEIR (04-06-2020 Commit)</option>
+                <option value="04-04-2020">New Model/SEIR (04-04-2020 Commit)</option>
+                <option value="03-31-2020">New Model/SEIR (03-31-2020 Commit)</option>
+
                 <option value="03-27-2020">Excel (03-27-2020)</option>
+                <option value="03-23-2020">Excel (03-23-2020)</option>
+                <option value="03-19-2020">Excel (03-19-2020)</option>
+
               </select>
             </div>
             <div class="select">
               <label for="intervention">intervention</label>
               <select id="intervention" class="custom-select custom-select-sm">
-                <option value="0">No Action</option>
-                <option value="3">Lax Shelter-in-Place</option>
-                <option value="1" selected>Strict Shelter-in-Place</option>
+                <option value="0">No Action (#0)</option>
+                <option value="1">Strict Shelter-in-Place (#1)</option>
+                <option value="2" selected>Projected (#2)</option>
+                <option value="3">Lax Shelter-in-Place (#3)</option>
               </select>
             </div>
             <div class="select">
@@ -233,6 +243,7 @@
     let interventionsNames = {
       "0": "No Action",
       "3": "Lax Shelter-in-Place",
+      "2": "Projected",
       "1": "Strict Shelter-in-Place"
     }
 
