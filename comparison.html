@@ -61,7 +61,6 @@
 
     </style>
     <link href="https://fonts.googleapis.com/css?family=News+Cycle:400,700&display=swap" rel="stylesheet">
-    <link rel="icon" href="/public/favicon.png">
 
     <!-- CSS only -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -208,8 +207,9 @@
       let newDataObject = {};
 
       let dates = [];
-      let startDate = new Date("03-03-2020");
-      let endDate = new Date("07-15-2020");
+      let startDate = new Date("2020-03-30")
+      console.log(startDate);
+      let endDate = new Date("2020-07-15")
 
       function isoToDate(isoDateObject) {
          let month = isoDateObject.getMonth() + 1
@@ -230,8 +230,11 @@
        }
 
       for (let i = startDate; startDate < endDate; startDate.setDate(startDate.getDate() + 1)) {
+        console.log(startDate)
         dates.push(isoToDate(i));
       }
+      console.log(dates);
+
 
       function makeChart(id = "deaths", dateArray = dates, data, labels, category = 'death') {
         let dataSets = [];
@@ -239,7 +242,6 @@
           var o = Math.round, r = Math.random, s = 255;
           return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
         }
-
         for (commit in data) {
           let color = random_rgba();
           dataSets.push({
@@ -251,7 +253,6 @@
             spanGaps: true
           })
         }
-        console.log(dataSets)
         let ctx = document.getElementById(id).getContext('2d');
         let chart = new Chart(ctx, {
             type: 'line',
@@ -336,6 +337,7 @@
             yAxis: 'hospitalizations (#)',
           }, "hospitalizations")
         })
+        .catch(err => console.log('ERR', err))
     }
 
     loadData("US", 2);
