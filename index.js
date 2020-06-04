@@ -24,6 +24,11 @@ app.get('/comparison2', (req, res) => {
   res.sendFile(path.join(__dirname + '/comparisonpreset.html'));
 })
 
+app.get('/comparison3', (req, res) => {
+  console.log("request at /comparison");
+  res.sendFile(path.join(__dirname + '/comparisonpreset2.html'));
+})
+
 app.get('/repop/old', (req, res) => {
   console.log("request at /repop");
   function populateAllData () {
