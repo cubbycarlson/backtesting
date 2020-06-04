@@ -241,6 +241,15 @@
 
         let colorArray = generateColor('#007D4A','#DAFFF0',Object.keys(data).length).reverse();
 
+        dataSets.push({
+          label: 'Actual',
+          backgroundColor: 'black',
+          borderColor: 'black',
+          data: actualObject[category],
+          fill: false,
+          spanGaps: true,
+        })
+        
         let i = 0;
 
         for (commit in data) {
@@ -256,14 +265,7 @@
             hidden: (commit == "03-27-2020" || commit == "03-23-2020")
           })
         }
-        dataSets.push({
-          label: 'Actual',
-          backgroundColor: 'black',
-          borderColor: 'black',
-          data: actualObject[category],
-          fill: false,
-          spanGaps: true,
-        })
+
         console.log(dataSets);
         let ctx = document.getElementById(id).getContext('2d');
         let chart = new Chart(ctx, {
