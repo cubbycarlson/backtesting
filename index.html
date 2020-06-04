@@ -87,19 +87,7 @@
             <div class="select">
               <label for="commitDate">model</label>
               <select id="commitDate" class="custom-select custom-select-sm">
-                <option value="04-14-2020">Initial Inference (04/14/2020 Commit)</option>
-
-                <option value="04-12-2020">Grand Rounds (04/12/2020 Commit)</option>
-                <option value="04-09-2020">Grand Rounds (04/09/2020 Commit)</option>
-
-                <option value="04-06-2020">New Model/SEIR (04-06-2020 Commit)</option>
-                <option value="04-04-2020">New Model/SEIR (04-04-2020 Commit)</option>
-                <option value="03-31-2020">New Model/SEIR (03-31-2020 Commit)</option>
-
-                <option value="03-27-2020">Excel (03-27-2020)</option>
-                <option value="03-23-2020">Excel (03-23-2020)</option>
-                <option value="03-19-2020">Excel (03-19-2020)</option>
-
+                <!-- options generated here -->
               </select>
             </div>
             <div class="select">
@@ -251,6 +239,7 @@
     // fetch('/public/data/projections/03-19-2020/CA.json')
       .then(response => response.json())
       .then(json => {
+
         projectionData = json.reverse();
         for (i in projectionData) {
           let data = json[i];
@@ -444,7 +433,7 @@
 
             let cumulativeErrorD = deathMarginsArray.reduce((a,b) => Math.abs(a) + Math.abs(b))
             let averageErrorD = cumulativeErrorD/deathMarginsArray.length
-            let cumulativeErrorH = hospitalizationsMarginsArray.reduce((a,b) => a+b)
+            let cumulativeErrorH = hospitalizationsMarginsArray.reduce((a,b) => Math.abs(a)+Math.abs(b))
             let averageErrorH = cumulativeErrorH/hospitalizationsMarginsArray.length
 
             let a = document.getElementById('cumulativeErrorD').innerHTML = cumulativeErrorD;
@@ -455,7 +444,15 @@
       });
     }
 
-    loadData("04-14-2020", "US", 2);
+    let list = document.getElementById('commitDate');
+    for (model in modelNameObject) {
+      let option = document.createElement('option');
+      option.innerHTML = modelNameObject[model]
+      option.value = model
+      list.append(option);
+    }
+
+    loadData("06-01-2020", "US", 2);
 
     function newData () {
       var selectedCommitDate = document.getElementById('commitDate').value;

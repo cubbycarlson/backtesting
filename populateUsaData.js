@@ -1,6 +1,7 @@
 const fs = require('fs');
 const stateAbbreviations = require("./states").stateAbbreviations;
 const dateToCommit = require('./dateToCommit').dateToCommit;
+const snapShotDates = require('./dateToCommit').snapShotDates;
 const interventions = require('./populateProjectionData').interventions;
 
 function isoToDate(isoDateObject) {
@@ -25,6 +26,29 @@ function populateUsaData() {
   function populate (intervention) {
     let usa = {};
     for (let commit in dateToCommit) {
+      usa[commit] = {};
+      let json = [];
+      stateAbbreviations.forEach(state => {
+        let raw = fs.readFileSync(__dirname + '/public/data/projections/' + commit + '/' + intervention + '/' + state + '.json');
+        let data = JSON.parse(raw);
+        json = json.concat(data);
+      });
+
+      json.forEach(stateData => {
+        usa[commit][stateData.date] = {
+          death: 0,
+          hospitalizations: 0
+        }
+      })
+
+      json.forEach(stateData => {
+        usa[commit][stateData.date].death = usa[commit][stateData.date].death += stateData.death
+        usa[commit][stateData.date].hospitalizations = usa[commit][stateData.date].hospitalizations += stateData.hospitalizations
+      })
+    }
+
+    for (let commit in snapShotDates) {
+      console.log(commit);
       usa[commit] = {};
       let json = [];
       stateAbbreviations.forEach(state => {

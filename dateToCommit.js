@@ -34,4 +34,20 @@ const dateToCommit = {
   // update with lower stay at home
  }
 
- exports.dateToCommit = dateToCommit
+ const snapShotDates = { // from new API
+   "06-01-2020": "396",
+   "05-29-2020": "385",
+   "05-28-2020": "375",
+   "05-27-2020": "373",
+   "05-26-2020": "370",
+   "05-22-2020": "359",
+   "05-21-2020": "354",
+   "05-20-2020": "323",
+   "05-14-2020": "292",
+   "05-11-2020": "276",
+   "05-08-2020": "271",
+   "05-06-2020": "261"
+ }
+
+ exports.dateToCommit = dateToCommit;
+ exports.snapShotDates = snapShotDates;

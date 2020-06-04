@@ -10,9 +10,33 @@ const dateToCommit = {
   '04-14-2020': 'da3e034c5602eeb1a1398d01251c93b7e4c51b70'
  }
 
-const modelNameObject = {
-"04-14-2020": "Initial Inference (04/14/2020 Commit)",
-"04-12-2020": "Grand Rapids (04/12/2020 Commit)",
-"04-06-2020": "New Model/SEIR (04-06-2020 Commit)",
-"03-27-2020": "Excel (03-27-2020)"
+let modelNameObject = {}
+
+const snapShotDates = { // from new API
+ "06-01-2020": "396",
+ "05-29-2020": "385",
+ "05-28-2020": "375",
+ "05-27-2020": "373",
+ "05-26-2020": "370",
+ "05-22-2020": "359",
+ "05-21-2020": "354",
+ "05-20-2020": "323",
+ "05-14-2020": "292",
+ "05-11-2020": "276",
+ "05-08-2020": "271",
+ "05-06-2020": "261"
 }
+
+for (snapShot in snapShotDates) {
+ modelNameObject[snapShot] = "Initial Inference (" + snapShot + " Commit)"
+}
+
+modelNameObject["04-14-2020"] = "Initial Inference (04/14/2020 Commit)";
+modelNameObject["04-12-2020"] = "Grand Rapids (04/12/2020 Commit)";
+modelNameObject["04-09-2020"] = "Grand Rapids (04/09/2020 Commit)";
+modelNameObject["04-06-2020"] = "New Model/SEIR (04-06-2020 Commit)";
+modelNameObject["04-04-2020"] = "New Model/SEIR (04-04-2020 Commit)";
+modelNameObject["03-31-2020"] = "New Model/SEIR (03-31-2020 Commit)";
+modelNameObject["03-27-2020"] = "Excel (03-27-2020)";
+modelNameObject["03-23-2020"] = "Excel (03-23-2020)";
+modelNameObject["03-19-2020"] = "Excel (03-19-2020)";
