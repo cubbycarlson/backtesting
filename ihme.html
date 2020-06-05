@@ -1,0 +1,420 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>CAN Backtesting Super!</title>
+
+    <style type="text/css">/* Chart.js */
+      h1, h2, h3, h4, p, ul, li {
+        /* font-family: 'News Cycle', sans-serif; */
+      }
+
+      body {
+        background-color: rgba(240, 240, 240, 1.0);
+      }
+
+      table {
+        font-size: 10px
+      }
+
+      #bigTable {
+        padding: 70px;
+      }
+
+      .logo, .signup {
+        display: block;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        width: 10%;
+      }
+
+      .issues {
+        margin-left: 50px;
+        margin-bottom: 50px;
+      }
+
+      .info {
+        margin-left: 30px;
+        margin-top: -15px;
+      }
+
+      .chartContainer {
+        display: inline-block;
+        padding-bottom: 100px;
+        padding-left: 100px;
+        padding-right: 100px;
+      }
+
+      #newDataButton {
+        padding-top: 36.5px;
+        padding-left: 5px;
+      }
+
+      #formContainer {
+        padding:20px;
+      }
+
+      .select{
+        padding:5px;
+      }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=News+Cycle:400,700&display=swap" rel="stylesheet">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+
+    <script src="../public/js/states.js"></script>
+    <script src="../public/js/dateToCommit.js"></script>
+    <script src="../public/js/colors.js"></script>
+
+  </head>
+
+  <body>
+    <div id="app">
+      <div>
+        <a href="/"><img class="logo" src="https://covidactnow.org/static/media/can_logo.0ac0983b.png"></a>
+      </div>
+
+      <div id="formContainer" class="row justify-content-center">
+        <form onsubmit="return false">
+          <div class="form-row">
+            <div class="select">
+              <label for="intervention">intervention</label>
+              <select id="intervention" class="custom-select custom-select-sm">
+                <option value="0">No Action (#0)</option>
+                <option value="1">Strict Shelter-in-Place (#1)</option>
+                <option value="2" selected>Projected (#2)</option>
+                <option value="3">Lax Shelter-in-Place (#3)</option>
+              </select>
+            </div>
+            <div class="select">
+              <label for="state">state</label>
+              <select id="state" class="custom-select custom-select-sm">
+                <option value="US">United States (US)</option>
+                <option value="AK">Alaska (AK)</option>
+                <option value="AL">Alabama (AL)</option>
+                <option value="AZ">Arizona (AZ)</option>
+                <option value="AR">Arkansas (AK)</option>
+                <option value="CA" selected>California (CA)</option>
+                <option value="CO">Colorado (CO)</option>
+                <option value="CT">Connecticut (CT)</option>
+                <option value="DC">District of Columbia (DC)</option>
+                <option value="DE">Delaware (DE)</option>
+                <option value="FL">Florida (FL)</option>
+                <option value="GA">Georgia (GA)</option>
+                <option value="HI">Hawaii (HI)</option>
+                <option value="ID">Idaho (ID)</option>
+                <option value="IL">Illinois (IL)</option>
+                <option value="IN">Indiana (IN)</option>
+                <option value="IA">Iowa (IA)</option>
+                <option value="KS">Kansas (KS)</option>
+                <option value="KY">Kentucky (KY)</option>
+                <option value="LA">Louisiana (LA)</option>
+                <option value="ME">Maine (ME)</option>
+                <option value="MD">Maryland (MD)</option>
+                <option value="MA">Massachusetts (MA)</option>
+                <option value="MI">Michigan (MI)</option>
+                <option value="MN">Minnesota (MN)</option>
+                <option value="MS">Mississippi (MS)</option>
+                <option value="MO">Missouri (MO)</option>
+                <option value="MT">Montana (MT)</option>
+                <option value="NE">Nebraska (NE)</option>
+                <option value="NV">Nevada (NV)</option>
+                <option value="NH">New Hampshire (NH)</option>
+                <option value="NY">New York (NY)</option>
+                <option value="NC">North Carolina (NC)</option>
+                <option value="ND">North Dakota (ND)</option>
+                <option value="OH">Ohio (OH)</option>
+                <option value="OK">Oklahoma (OK)</option>
+                <option value="OR">Oregon (OR)</option>
+                <option value="PA">Pennsylvania (PA)</option>
+                <option value="RI">Rhode Island (RI)</option>
+                <option value="SC">South Carolina (SC)</option>
+                <option value="SD">South Dakota (SD)</option>
+                <option value="TN">Tennessee (TN)</option>
+                <option value="TX">Texas (TX)</option>
+                <option value="UT">Utah (UT)</option>
+                <option value="VT">Vermont (VT)</option>
+                <option value="VA">Virginia (VA)</option>
+                <option value="WA">Washington (WA)</option>
+                <option value="WV">West Virginia (WV)</option>
+                <option value="WI">Wisconsin (WI)</option>
+                <option value="WY">Wyoming (WY)</option>
+              </select>
+            </div>
+            <div id="newDataButton">
+              <button type="submit" class="btn btn-outline-info btn-sm" onClick="newData()">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+
+      <div class="chartContainer">
+      <canvas id="deaths" width="800" height="800"></canvas>
+      </div>
+<!--
+      <div class="chartContainer">
+      <canvas id="deathsMargin"width="350" height="350"></canvas>
+      </div> -->
+
+      <div class="chartContainer">
+        <canvas id="hospitalizations" width="800" height="800"></canvas>
+      </div>
+
+      <!-- <div class="chartContainer">
+      <canvas id="hospitalizationsMargin" width="350" height="350"></canvas>
+      </div> -->
+
+    </div>
+  </body>
+
+  <script type="text/javascript">
+
+  let hospitalizationsChart, hospitalizationMarginsChart, deathChart, deathsMarginChart;
+
+  function loadData(selectedState, intervention) {
+      let state = selectedState;
+
+      let projectionDates = [];
+      let projectionData = [];
+      let projectionObject = {};
+      let actualData = [];
+
+      let deathMarginsArray = [];
+      let hospitalizationsMarginsArray = [];
+
+      let dataObject = {}; // array of date object
+
+      let interventionsNames = {
+        "0": "No Action",
+        "3": "Lax Shelter-in-Place",
+        "2": "Projected",
+        "1": "Strict Shelter-in-Place"
+      }
+
+      let interventions = [0,1,2,3];
+
+      let newDataObject = {};
+
+      let dates = [];
+      let startDate = new Date("2020-03-30")
+      let endDate = new Date("2020-09-15")
+
+      function isoToDate(isoDateObject) {
+         let month = isoDateObject.getMonth() + 1
+         if (month < 10) {
+           month = '0' + month.toString()
+         } else {
+           month = month.toString()
+         }
+         let date = isoDateObject.getDate()
+         if (date < 10) {
+           date = '0' + date.toString()
+         } else {
+           date = date.toString()
+         }
+         let year = isoDateObject.getFullYear()
+         let fullDate = month + '-' + date + '-' + year
+         return fullDate
+       }
+
+      for (let i = startDate; startDate < endDate; startDate.setDate(startDate.getDate() + 1)) {
+        dates.push(isoToDate(i));
+      }
+
+      function makeChart(id = "deaths", dateArray = dates, data, labels, category = 'death', actualObject, ihmeObject) {
+        let dataSets = [];
+        function random_rgba() {
+          var o = Math.round, r = Math.random, s = 255;
+          return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
+        }
+
+        let colorArray = generateColor('#007D4A','#DAFFF0',Object.keys(data).length).reverse();
+
+        dataSets.push({
+          label: 'Actual',
+          backgroundColor: 'black',
+          borderColor: 'black',
+          data: actualObject[category],
+          fill: false,
+          spanGaps: true,
+        })
+
+        dataSets.push({
+          label: "IHME",
+          backgroundColor: 'red',
+          borderColor: 'red',
+          data: ihmeObject[category],
+          fill: false,
+          spanGaps: true
+        })
+
+        let i = 0;
+
+        for (commit in data) {
+          let color = colorArray[i];
+          i++
+          dataSets.push({
+            label: commit + " commit",
+            backgroundColor: "#" + color,
+            borderColor: "#" + color,
+            data: data[commit][category],
+            fill: false,
+            spanGaps: true,
+            hidden: commit != "06-01-2020"
+          })
+        }
+
+        let ctx = document.getElementById(id).getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: dateArray,
+              datasets: dataSets
+            },
+            options: {
+              responsive: true,
+              title: {
+                display: true,
+                text: labels.title || ""
+              },
+              tooltips: {
+                mode: 'index'
+
+              },
+
+              scales: {
+                  xAxes: [{
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'date'
+                      },
+                      ticks: {
+                          autoSkip: true,
+                          minRotation: 30,
+                          fontSize: 10
+                      }
+                  }],
+                  yAxes: [{
+                      scaleLabel: {
+                          display: true,
+                          labelString: labels.yAxis || ''
+                      }
+                  }]
+              },
+              // legend: {
+              //     display: labels.legend || ""
+              // },
+            }
+
+
+        });
+        return chart;
+      }
+
+      function getOneJson(newModel, inter, st) {
+        return function() {
+          return fetch('/public/data/projections/' + newModel + '/' + inter + '/' + st + '.json')
+            .then(data => data.json())
+        }
+      }
+
+      function getJson(dataSource, inter, st) {
+        return function() {
+          return fetch('/public/data/' + dataSource + '/' + st + '.json')
+            .then(data => data.json())
+        }
+      }
+
+      let modelList = Object.keys(modelNameObject);
+      function getManyJson () {
+        let models = modelList.map(key => getOneJson(key, intervention, state)());
+        let actual = getJson("actual", intervention, state)()
+        let ihme = getJson("IHME", intervention, state)()
+        return Promise.all(models.concat(actual).concat(ihme));
+      }
+
+      getManyJson()
+        .then(data => {
+          modelList.forEach((model, index) => {
+            newDataObject[model] = data[index]
+          })
+          return data
+        })
+        .then(data => {
+          let actualsArray = data[data.length-2]
+          let ihmeArray = data[data.length-1]
+
+          for (commit in newDataObject) {
+            let deaths = [];
+            let hospitalizations = [];
+            newDataObject[commit].forEach(row => {
+              let index = dates.indexOf(row.date)
+              deaths[index] = row.death;
+              hospitalizations[index] = row.hospitalizations;
+              newDataObject[commit].death = deaths;
+              newDataObject[commit].hospitalizations = hospitalizations;
+            })
+          }
+
+          let actualDeaths = [];
+          let actualHospitalizations = [];
+          actualsArray.forEach(row => {
+            let index = dates.indexOf(row.date)
+            actualDeaths[index] = row.death;
+            actualHospitalizations[index] = row.hospitalizations;
+          })
+          let actualObject = {
+            death: actualDeaths,
+            hospitalizations: actualHospitalizations
+          };
+
+          let ihmeDeaths = [];
+          let ihmeHospitalizations = [];
+          ihmeArray.forEach(row => {
+            let index = dates.indexOf(row.date)
+            ihmeDeaths[index] = row.death;
+            ihmeHospitalizations[index] = row.hospitalizations;
+          })
+          let ihmeObject = {
+            death: ihmeDeaths,
+            hospitalizations: ihmeHospitalizations
+          };
+
+          deathChart = makeChart("deaths", dates, newDataObject, {
+            title: 'Deaths (cumulative) - All Projections',
+            yAxis: 'deaths (#)',
+          }, "death", actualObject, ihmeObject)
+          hospitalizationsChart = makeChart("hospitalizations", dates, newDataObject, {
+            title: 'Hospitalizations (daily) - All Projections',
+            yAxis: 'hospitalizations (#)',
+          }, "hospitalizations", actualObject, ihmeObject)
+        })
+        .catch(err => console.log('ERR', err))
+    }
+
+    loadData("CA", 2);
+
+    function newData () {
+      var selectedState = document.getElementById('state').value;
+      var intervention = document.getElementById('intervention').value;
+
+      hospitalizationsChart.destroy()
+      // hospitalizationMarginsChart.destroy()
+      deathChart.destroy()
+      // deathsMarginChart.destroy()
+
+      loadData(selectedState, intervention);
+    }
+</script>
+</html>
