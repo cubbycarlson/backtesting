@@ -232,7 +232,8 @@
         dates.push(isoToDate(i));
       }
 
-      function makeChart(id = "deaths", dateArray = dates, data, labels, category = 'death', actualObject, ihmeObject) {
+      function makeChart(id = "deaths", dateArray = dates, data, labels, category = 'death', actualObject, ihmeObject, ihmeOldObject) {
+        console.log(ihmeOldObject);
         let dataSets = [];
         function random_rgba() {
           var o = Math.round, r = Math.random, s = 255;
@@ -251,10 +252,19 @@
         })
 
         dataSets.push({
-          label: "IHME",
+          label: "IHME (05/29/2020 Data)",
           backgroundColor: 'red',
           borderColor: 'red',
           data: ihmeObject[category],
+          fill: false,
+          spanGaps: true
+        })
+
+        dataSets.push({
+          label: "IHME (03/25/2020 Data)",
+          backgroundColor: 'blue',
+          borderColor: 'blue',
+          data: ihmeOldObject[category],
           fill: false,
           spanGaps: true
         })
@@ -265,7 +275,7 @@
           let color = colorArray[i];
           i++
           dataSets.push({
-            label: commit + " commit",
+            label: "CAN (" + commit + " commit)",
             backgroundColor: "#" + color,
             borderColor: "#" + color,
             data: data[commit][category],
@@ -340,8 +350,9 @@
       function getManyJson () {
         let models = modelList.map(key => getOneJson(key, intervention, state)());
         let actual = getJson("actual", intervention, state)()
-        let ihme = getJson("IHME", intervention, state)()
-        return Promise.all(models.concat(actual).concat(ihme));
+        let ihmeNew = getJson("IHME", intervention, state)()
+        let ihmeOld = getJson("IHME1", intervention, state)()
+        return Promise.all(models.concat(actual).concat(ihmeNew).concat(ihmeOld));
       }
 
       getManyJson()
@@ -352,8 +363,9 @@
           return data
         })
         .then(data => {
-          let actualsArray = data[data.length-2]
-          let ihmeArray = data[data.length-1]
+          let actualsArray = data[data.length-3]
+          let ihmeArray = data[data.length-2]
+          let ihmeOldArray = data[data.length-1]
 
           for (commit in newDataObject) {
             let deaths = [];
@@ -391,14 +403,27 @@
             hospitalizations: ihmeHospitalizations
           };
 
+          let ihmeOldDeaths = [];
+          let ihmeOldHospitalizations = [];
+          ihmeOldArray.forEach(row => {
+            let index = dates.indexOf(row.date)
+            ihmeOldDeaths[index] = row.death;
+            ihmeOldHospitalizations[index] = row.hospitalizations;
+          })
+
+          let ihmeOldObject = {
+            death: ihmeOldDeaths,
+            hospitalizations: ihmeOldHospitalizations
+          };
+
           deathChart = makeChart("deaths", dates, newDataObject, {
             title: 'Deaths (cumulative) - All Projections',
             yAxis: 'deaths (#)',
-          }, "death", actualObject, ihmeObject)
+          }, "death", actualObject, ihmeObject, ihmeOldObject)
           hospitalizationsChart = makeChart("hospitalizations", dates, newDataObject, {
             title: 'Hospitalizations (daily) - All Projections',
             yAxis: 'hospitalizations (#)',
-          }, "hospitalizations", actualObject, ihmeObject)
+          }, "hospitalizations", actualObject, ihmeObject, ihmeOldObject)
         })
         .catch(err => console.log('ERR', err))
     }

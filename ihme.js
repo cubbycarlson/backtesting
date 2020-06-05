@@ -4,7 +4,7 @@ let csv = require("csv-parser");
 const fs = require('fs');
 const statesObject = require('./states').states
 
-fs.mkdirSync(__dirname + "/public/data/IHME", { recursive: true }, (err) => {
+fs.mkdirSync(__dirname + "/public/data/IHME1", { recursive: true }, (err) => {
   if (err) throw err
 })
 
@@ -24,7 +24,7 @@ function parseDate (strDate) {
 }
 
 const results = [];
-fs.createReadStream(__dirname + '/public/IHME/Hospitalization_all_locs.csv')
+fs.createReadStream(__dirname + '/public/IHME1/ihme-covid19_all_locs.csv')
   .pipe(csv())
   .on('data', data => results.push(data))
   .on('end', () => {
@@ -32,16 +32,18 @@ fs.createReadStream(__dirname + '/public/IHME/Hospitalization_all_locs.csv')
     states.forEach(state => {
       let stateArray = [];
       results.forEach(result => {
+        console.log(result);
         if (result["location_name"] == state.name) {
           stateArray.push({
-            date: parseDate(result["date"]),
+            // date: parseDate(result["date"]),
+            date: parseDate(result["date_reported"]),
             death: result["totdea_mean"],
             hospitalizations: result["allbed_mean"]
           })
         }
       })
 
-      fs.writeFileSync(__dirname + "/public/data/IHME/" + state.abbreviation + ".json", JSON.stringify(stateArray), err => {
+      fs.writeFileSync(__dirname + "/public/data/IHME1/" + state.abbreviation + ".json", JSON.stringify(stateArray), err => {
         if (err) throw err;
       })
     })
