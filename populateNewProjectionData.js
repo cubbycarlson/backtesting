@@ -27,7 +27,8 @@ const interventions = {
   noAction: 0,
   strictShelterInPlace: 1,
   projected: 2,
-  weakShelterInPlace: 3
+  weakShelterInPlace: 3,
+  // weakShetlerInPlaceTest: 7
 }
 
 function isoToDate(isoDateObject) {
@@ -49,18 +50,27 @@ function isoToDate(isoDateObject) {
  }
 
 function dailyStatistic (row, date) {
+  function removeCommas(str) {
+      while (str.search(",") >= 0) {
+          str = (str + "").replace(',', '');
+      }
+      return str;
+  };
+
   const newRow = {
     date: isoToDate(new Date(row[columnId('date', date)])),
-    hospitalizations: Number(row[columnId('hospitalizations', date)]) || 0,
-    death: Number(row[columnId('cumulativeDeaths', date)]) || 0
+    hospitalizations: Number(removeCommas(row[columnId('hospitalizations', date)])) || 0,
+    death: Number(removeCommas(row[columnId('cumulativeDeaths'.replace(/\,/g,''), date)])) || 0
   }
   return newRow
 }
 
+
 const canRepoUrl = "https://data.covidactnow.org/snapshot"
 function getProjections(date, state, intervention) {
 
-  console.log(date, state, intervention)
+  console.log(intervention)
+
   const commit = snapShotDates[date];
 
   function checkStatus(res) {
@@ -86,7 +96,8 @@ function getProjections(date, state, intervention) {
     })
     .catch(string => {
       // tries lowercase instead of uppercase states
-      fetch(canRepoUrl + '/' + snapShotDates[date] + '/' + state + '.' + intervention + '.json')
+      console.log('fetching: ' + canRepoUrl + '/' + snapShotDates[date] + '/' + state.toLowerCase() + '.' + intervention + '.json')
+      fetch(canRepoUrl + '/' + snapShotDates[date] + '/' + state.toLowerCase() + '.' + intervention + '.json')
       .then(checkStatus)
       .then(res => res.json())
       .then(projectionJsonRaw => {
@@ -100,6 +111,9 @@ function getProjections(date, state, intervention) {
       .catch(err => {
         console.log(err)
       })
+    })
+    .catch(err => {
+      console.log(err)
     })
 }
 
@@ -116,7 +130,6 @@ function populateProjectionData () {
       })
     }
     abbreviations.forEach(state => {
-      // console.log(interventions);
       for (let intervention in interventions) {
         getProjections(commitDate, state, interventions[intervention]) // this is always 1, ask about and fix
       }

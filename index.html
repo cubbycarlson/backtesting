@@ -106,7 +106,7 @@
                 <option value="AL">Alabama (AL)</option>
                 <option value="AZ">Arizona (AZ)</option>
                 <option value="AR">Arkansas (AK)</option>
-                <option value="CA">California (CA)</option>
+                <option value="CA" selected>California (CA)</option>
                 <option value="CO">Colorado (CO)</option>
                 <option value="CT">Connecticut (CT)</option>
                 <option value="DC">District of Columbia (DC)</option>
@@ -451,7 +451,8 @@
       list.append(option);
     }
 
-    loadData("06-01-2020", "US", 2);
+    // loadData("06-01-2020", "US", 2);
+    loadData("06-01-2020", "CA", 2);
 
     function newData () {
       var selectedCommitDate = document.getElementById('commitDate').value;

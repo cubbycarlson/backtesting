@@ -1,6 +1,6 @@
 const dateToCommit = {
   // original launch
-  '03-19-2020': 'da541531b70899263526ac2e061c7d87412cdc5c',
+  '03-19-2020': 'b7a0a649d9fd89baafd86ff213d03f6fea2ccb97',
 
   // Wed Mar 25 01:17:28 2020 -0700 New model: updated hospitalization rate estimates and actuals
   // '3/23/2020': 'c2ecc44cb2a6b2c2a9e5d7c8630203285be672ff',

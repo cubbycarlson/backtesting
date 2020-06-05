@@ -29,9 +29,12 @@ function populateUsaData() {
       usa[commit] = {};
       let json = [];
       stateAbbreviations.forEach(state => {
-        let raw = fs.readFileSync(__dirname + '/public/data/projections/' + commit + '/' + intervention + '/' + state + '.json');
-        let data = JSON.parse(raw);
-        json = json.concat(data);
+        let problem = (commit == '03-19-2020' && state == 'DC')
+        if (!problem) {
+          let raw = fs.readFileSync(__dirname + '/public/data/projections/' + commit + '/' + intervention + '/' + state + '.json');
+          let data = JSON.parse(raw);
+          json = json.concat(data);
+        }
       });
 
       json.forEach(stateData => {
