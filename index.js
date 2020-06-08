@@ -6,6 +6,7 @@ const populateProjectionData = require('./populateProjectionData').populateProje
 const populateActualData = require('./populateActualData').populateActualData;
 const populateUsaData = require('./populateUsaData');
 const popNew = require('./populateNewProjectionData').populateNewProjectionData;
+const getActualData = require('./getActualData').getActualData;
 
 app.use("/public", express.static("public"));
 
@@ -78,6 +79,15 @@ app.get('/repop/usa', (req, res) => {
   // res.redirect('/')
   res.send('repop usa!');
   // res.sendFile(path.join(__dirname + '/html/index.html'));
+})
+
+app.get('/comparison/ihme/table', (req, res) => {
+  res.sendFile(path.join(__dirname + '/ihmetable.html'));
+})
+
+app.get('/pull/actual', (req, res) => {
+  getActualData();
+  res.redirect("/");
 })
 
 app.listen(process.env.PORT || 9999, () => {
