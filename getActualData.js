@@ -70,7 +70,6 @@ getData()
       .on('data', data => usaData.push(data))
       .on('end', () => {
         console.log("usa format:", usaData[0])
-        console.log
 
         let statesData = [];
         fs.createReadStream(__dirname + '/public/data/test/actual/states.csv')
@@ -118,60 +117,6 @@ getData()
               })
             }
         })
-
       })
-
-      console.log(usaData);
-
-    //
-    // let counties = [];
-    // fs.createReadStream(__dirname + '/public/data/test/actual/counties.csv')
-    //   .pipe(csv())
-    //   .on('data', data => usa.push(data))
-    //   .on('end', () => { console.log(usa) })
-
-
-    //
-    //
-    // fetch("https://covidtracking.com/api/v1/states/daily.json")
-    //   .then(res => res.json())
-    //   .then(json => {
-    //     let actuals = json
-    //       .reverse()
-    //       .filter(row => row.date > 20200312 && row.state == state)
-    //       .map(row => {
-    //         return {
-    //           date: parseDate(row.date),
-    //           hospitalizations: row.hospitalizedCurrently || 0,
-    //           death: row.death || 0
-    //         }
-    //       })
-    //
-    //       fs.writeFileSync('./public/data/actual/' + state + '.json', JSON.stringify(actuals), err => {
-    //         if (err) throw err;
-    //         console.log('updating');
-    //       })
-    //
-    //     return actuals;
-    //   })
-    //   .catch(err => console.log("ERROR", err))
-
-
-
-
-
   })
   .catch(err => console.log(err))
-
-
-function getUsaData() {
-
-}
-
-function getStateData (state) {
-
-}
-
-function getCountyData () {
-
-}
