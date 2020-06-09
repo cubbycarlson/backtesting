@@ -44,8 +44,8 @@ ihmeDates.forEach(commit => {
             if (result["location_name"] == state.name) {
               stateArray.push({
                 date: parseDate(result["date_reported"]),
-                death: result["totdea_mean"],
-                hospitalizations: result["allbed_mean"]
+                death: Number(result["totdea_mean"]),
+                hospitalizations: Number(result["allbed_mean"])
               })
             }
           })
@@ -61,8 +61,8 @@ ihmeDates.forEach(commit => {
             if (result["location"] == state.name) {
               stateArray.push({
                 date: parseDate(result["date"]),
-                death: result["totdea_mean"],
-                hospitalizations: result["allbed_mean"]
+                death: Number(result["totdea_mean"]),
+                hospitalizations: Number(result["allbed_mean"])
               })
             }
           })
@@ -79,8 +79,8 @@ ihmeDates.forEach(commit => {
             if (result["location_name"] == state.name) {
               stateArray.push({
                 date: parseDate(result["date"]),
-                death: result["totdea_mean"],
-                hospitalizations: result["allbed_mean"]
+                death: Number(result["totdea_mean"]),
+                hospitalizations: Number(result["allbed_mean"])
               })
             }
           })
