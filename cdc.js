@@ -42,7 +42,7 @@ fs.createReadStream(__dirname + '/public/CDC/Excess_Deaths_Associated_with_COVID
     let filtered = results.filter(a => {
       return (new Date(a['﻿Week Ending Date']) > new Date("2/1/2020"));
     }).filter(b => {
-      return b["Exceeds Threshold"] === "TRUE"
+      return b["Exceeds Threshold"] === "TRUE" || b["Exceeds Threshold"] === "true"
     }).filter(c => {
       return c["Type"] === "Predicted (weighted)"
     }).filter(d => {

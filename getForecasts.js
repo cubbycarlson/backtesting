@@ -7,13 +7,13 @@ let csv = require("csv-parser");
 
 states["US"] = "US";
 
+// exampleUrl: "https://raw.githubusercontent.com/reichlab/covid19-forecast-hub/master/data-processed/UCLA-SuEIR/2020-05-01-UCLA-SuEIR.csv";
 let prefix = "https://raw.githubusercontent.com/reichlab/covid19-forecast-hub/master/data-processed"
 
 let models = {
   ucla: {
     folderName: "UCLA",
     baseUrl: prefix + "/UCLA-SuEIR",
-    // exampleUrl: "https://raw.githubusercontent.com/reichlab/covid19-forecast-hub/master/data-processed/UCLA-SuEIR/2020-05-01-UCLA-SuEIR.csv";
     dates: ["2020-05-01", "2020-05-10", "2020-05-17", "2020-05-24", "2020-05-31", "2020-06-07"],
     suffix: "-UCLA-SuEIR.csv"
   },
@@ -72,7 +72,8 @@ function pullData(src) {
   fetches()
     .then(nothing => {
       dates.forEach(date => {
-        fs.mkdirSync(__dirname + "/public/data/" + src.folderName + '/' + date, { recursive: true }, (err) => {
+        let correctDate = rearrangeDate(date);
+        fs.mkdirSync(__dirname + "/public/data/" + src.folderName + '/' + correctDate, { recursive: true }, (err) => {
           if (err) throw err
         })
 
@@ -91,7 +92,7 @@ function pullData(src) {
                     death: Number(c["value"])
                   }
                 })
-              fs.writeFileSync(__dirname + '/public/data/' + src.folderName + '/' + date + '/' + state + '.json', JSON.stringify(stateResults), err => {
+              fs.writeFileSync(__dirname + '/public/data/' + src.folderName + '/' + correctDate + '/' + state + '.json', JSON.stringify(stateResults), err => {
                 if (err) throw err;
                 console.log('updating');
               })
@@ -106,7 +107,7 @@ function pullData(src) {
                   death: Number(c["value"])
                 }
               })
-            fs.writeFileSync(__dirname + '/public/data/' + src.folderName + '/' + date + '/US.json', JSON.stringify(usaResults), err => {
+            fs.writeFileSync(__dirname + '/public/data/' + src.folderName + '/' + correctDate + '/US.json', JSON.stringify(usaResults), err => {
               if (err) throw err;
               console.log('updating');
             })
