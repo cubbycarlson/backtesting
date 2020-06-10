@@ -90,6 +90,10 @@ app.get('/pull/actual', (req, res) => {
   res.redirect("/");
 })
 
+app.get('/all', (req, res) => {
+  res.sendFile(path.join(__dirname + '/allTable.html'));
+})
+
 app.listen(process.env.PORT || 9999, () => {
   console.log("listening...");
 });

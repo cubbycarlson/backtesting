@@ -1,0 +1,742 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>CAN Backtesting</title>
+
+    <style type="text/css">/* Chart.js */
+      h1, h2, h3, h4, p, ul, li {
+        /* font-family: 'News Cycle', sans-serif; */
+      }
+
+      body {
+        background-color: rgba(240, 240, 240, 1.0);
+      }
+
+      table {
+        font-size: 10px
+      }
+
+      #bigTable {
+        padding: 70px;
+      }
+
+      .logo, .signup {
+        display: block;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        width: 10%;
+      }
+
+      .issues {
+        margin-left: 50px;
+        margin-bottom: 50px;
+      }
+
+      .info {
+        margin-left: 30px;
+        margin-top: -15px;
+      }
+
+      .chartContainer {
+        display: inline-block;
+      }
+
+      #newDataButton {
+        padding-top: 36.5px;
+        padding-left: 5px;
+      }
+
+      #formContainer {
+        padding:20px;
+      }
+
+      .select{
+        padding:5px;
+      }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=News+Cycle:400,700&display=swap" rel="stylesheet">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+
+    <script src="../public/js/states.js"></script>
+    <script src="../public/js/dateToCommit.js"></script>
+    <script src="../public/js/models.js"></script>
+
+
+  </head>
+
+  <body>
+    <div id="app">
+      <div>
+        <a href="/"><img class="logo" src="https://covidactnow.org/static/media/can_logo.0ac0983b.png"></a>
+      </div>
+
+      <div id="formContainer" class="row justify-content-center">
+        <form onsubmit="return false">
+          <div class="form-row">
+            <div class="select">
+              <label for="intervention">intervention</label>
+              <select id="intervention" class="custom-select custom-select-sm">
+                <option value="0">No Action (#0)</option>
+                <option value="1">Strict Shelter-in-Place (#1)</option>
+                <option value="2" selected>Projected (#2)</option>
+                <option value="3">Lax Shelter-in-Place (#3)</option>
+              </select>
+            </div>
+            <div class="select">
+              <label for="state">state</label>
+              <select id="state" class="custom-select custom-select-sm">
+                <option value="US">United States (US)</option>
+                <option value="AK">Alaska (AK)</option>
+                <option value="AL">Alabama (AL)</option>
+                <option value="AZ">Arizona (AZ)</option>
+                <option value="AR">Arkansas (AK)</option>
+                <option value="CA" selected>California (CA)</option>
+                <option value="CO">Colorado (CO)</option>
+                <option value="CT">Connecticut (CT)</option>
+                <option value="DC">District of Columbia (DC)</option>
+                <option value="DE">Delaware (DE)</option>
+                <option value="FL">Florida (FL)</option>
+                <option value="GA">Georgia (GA)</option>
+                <option value="HI">Hawaii (HI)</option>
+                <option value="ID">Idaho (ID)</option>
+                <option value="IL">Illinois (IL)</option>
+                <option value="IN">Indiana (IN)</option>
+                <option value="IA">Iowa (IA)</option>
+                <option value="KS">Kansas (KS)</option>
+                <option value="KY">Kentucky (KY)</option>
+                <option value="LA">Louisiana (LA)</option>
+                <option value="ME">Maine (ME)</option>
+                <option value="MD">Maryland (MD)</option>
+                <option value="MA">Massachusetts (MA)</option>
+                <option value="MI">Michigan (MI)</option>
+                <option value="MN">Minnesota (MN)</option>
+                <option value="MS">Mississippi (MS)</option>
+                <option value="MO">Missouri (MO)</option>
+                <option value="MT">Montana (MT)</option>
+                <option value="NE">Nebraska (NE)</option>
+                <option value="NV">Nevada (NV)</option>
+                <option value="NH">New Hampshire (NH)</option>
+                <option value="NY">New York (NY)</option>
+                <option value="NC">North Carolina (NC)</option>
+                <option value="ND">North Dakota (ND)</option>
+                <option value="OH">Ohio (OH)</option>
+                <option value="OK">Oklahoma (OK)</option>
+                <option value="OR">Oregon (OR)</option>
+                <option value="PA">Pennsylvania (PA)</option>
+                <option value="RI">Rhode Island (RI)</option>
+                <option value="SC">South Carolina (SC)</option>
+                <option value="SD">South Dakota (SD)</option>
+                <option value="TN">Tennessee (TN)</option>
+                <option value="TX">Texas (TX)</option>
+                <option value="UT">Utah (UT)</option>
+                <option value="VT">Vermont (VT)</option>
+                <option value="VA">Virginia (VA)</option>
+                <option value="WA">Washington (WA)</option>
+                <option value="WV">West Virginia (WV)</option>
+                <option value="WI">Wisconsin (WI)</option>
+                <option value="WY">Wyoming (WY)</option>
+              </select>
+            </div>
+            <div id="newDataButton">
+              <button type="submit" class="btn btn-outline-info btn-sm" onClick="newData()">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+
+
+
+
+  <div class="row justify-content center">
+    <table class="table table-small table-bordered" id="all">
+      <!-- <caption>
+        cumulative error in hospitalizations (sum of the absolute value of all margins of error): <span id="cumulativeErrorH"> </span></br>
+        average error in hospitalizations (cumulative error / number of rows): <span id="averageErrorH">  </span></br>
+        cumulative error in deaths (sum of the absolute value of all margins of error): <span id="cumulativeErrorD"> </span></br>
+        average error in deaths (cumulative error / number of rows): <span id="averageErrorD">  </span>
+      </caption> -->
+      <thead>
+        <th colspan="1">model / date</th>
+     </thead>
+     <tbody>
+      <!-- rows load here -->
+     </tbody>
+    </table>
+    <div id="download">
+      <button type="submit" class="btn btn-outline-info btn-sm" onClick="exportTableToExcel()">download excel</button>
+    </div>
+  </body>
+  <script type="text/javascript">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //
+  // let hospitalizationsChart, hospitalizationMarginsChart, deathsChart, deathsMarginChart;
+  //
+  // function loadData(selectedCommitDate, selectedState, intervention) {
+  //   let projectionDate = selectedCommitDate;
+  //   let state = selectedState;
+  //
+  //   let projectionDates = [];
+  //   let projectionData = [];
+  //   let projectionObject = {};
+  //   let actualData = [];
+  //
+  //   let deathMarginsArray = [];
+  //   let hospitalizationsMarginsArray = [];
+  //
+  //   let dataObject = {}; // array of date object
+  //
+  //   let interventionsNames = {
+  //     "0": "No Action",
+  //     "3": "Lax Shelter-in-Place",
+  //     "2": "Projected",
+  //     "1": "Strict Shelter-in-Place"
+  //   }
+  //
+  //   fetch('/public/data/projections/' + projectionDate + '/' + intervention + '/' + state + '.json')
+  //   // fetch('/public/data/projections/03-19-2020/CA.json')
+  //     .then(response => response.json())
+  //     .then(json => {
+  //
+  //       projectionData = json.reverse();
+  //       for (i in projectionData) {
+  //         let data = json[i];
+  //         projectionDates.push(data.date)
+  //         projectionObject[data.date] = {
+  //           hospitalizations:data.hospitalizations,
+  //           death: data.death
+  //         }
+  //       }
+  //
+  //       fetch('/public/data/actual/' + state + '.json')
+  //         .then(response => response.json())
+  //         .then(json => {
+  //           let actualData = json.reverse().filter(data => {
+  //             if (projectionDates.includes(data.date)) return data
+  //           })
+  //
+  //           actualData.forEach(actual => {
+  //             dataObject[actual.date] = {
+  //               date: actual.date,
+  //               actual
+  //             };
+  //           });
+  //
+  //           projectionData.forEach(projection => {
+  //             if (projection.date in dataObject) {
+  //               dataObject[projection.date].projection = {...projection}
+  //             }
+  //           });
+  //
+  //
+  //           let ihmeDates = ["03-25-2020", "03-31-2020", "04-08-2020", "04-13-2020", "05-20-2020", "05-29-2020"];
+  //
+  //           function getOneJson(commit, state) {
+  //             return fetch('/public/data/IHME/' + commit + '/' + state + '.json')
+  //               .then(data => data.json())
+  //           }
+  //
+  //           function getManyJson (state) {
+  //             return Promise.all(ihmeDates.map(date => getOneJson(date, state)));
+  //           }
+  //
+  //           let ihmeData = [];
+  //           let a = getManyJson(state)
+  //             .then(ihmeArrays => {
+  //               for (date in dataObject) {
+  //                 let deathMargin = dataObject[date].projection.death - dataObject[date].actual.death;
+  //                 deathMarginsArray.push(deathMargin);
+  //                 let hospitalizationsMargin = dataObject[date].projection.hospitalizations - dataObject[date].actual.hospitalizations;
+  //                 hospitalizationsMarginsArray.push(hospitalizationsMargin);
+  //
+  //                 dataObject[date].margin = {
+  //                   date,
+  //                   hospitalizations: hospitalizationsMargin,
+  //                   death: deathMargin
+  //                 }
+  //               }
+  //
+  //               const margins = document.getElementById("margins");
+  //               let marginData = actualData.map((data,index) => {
+  //                 return {
+  //                   date: data.date,
+  //                   hospitalizations: Math.round(projectionObject[data.date].hospitalizations) - data.hospitalizations,
+  //                   death: Math.round(projectionObject[data.date].death) - data.death,
+  //                 }
+  //               });
+  //
+  //               const dataTable = document.getElementById("data");
+  //
+  //               for (data in dataObject) {
+  //
+  //                 let rowData = dataObject[data];
+  //                 let row = dataTable.insertRow(2);
+  //                 let cell1 = row.insertCell(0);
+  //                 let cell2 = row.insertCell(1);
+  //                 let cell3 = row.insertCell(2);
+  //                 let cell4 = row.insertCell(3);
+  //                 let cell5 = row.insertCell(4);
+  //                 let cell6 = row.insertCell(5);
+  //                 let cell7 = row.insertCell(6);
+  //                 let cell8 = row.insertCell(7);
+  //                 let cell9 = row.insertCell(8);
+  //                 let cell10 = row.insertCell(9);
+  //                 let cell11 = row.insertCell(10);
+  //                 let cell12 = row.insertCell(11);
+  //                 let cell13 = row.insertCell(12);
+  //                 let cell14 = row.insertCell(13);
+  //                 let cell15 = row.insertCell(14);
+  //                 let cell16 = row.insertCell(15);
+  //                 let cell17 = row.insertCell(16);
+  //                 let cell18 = row.insertCell(17);
+  //                 let cell19 = row.insertCell(18);
+  //
+  //                 cell1.innerHTML = rowData.date;
+  //                 cell2.innerHTML = rowData.projection.hospitalizations;
+  //                 cell3.innerHTML = rowData.projection.death;
+  //                 cell4.innerHTML = rowData.actual.hospitalizations;
+  //                 cell5.innerHTML = rowData.actual.death;
+  //                 cell6.innerHTML = rowData.margin.hospitalizations;
+  //                 cell7.innerHTML = rowData.margin.death;
+  //
+  //                 ihmeArrays[0].forEach(stat => {
+  //                   if (stat.date == data) {
+  //                     cell8.innerHTML = stat.hospitalizations
+  //                     cell9.innerHTML = stat.death
+  //                   }
+  //                 })
+  //
+  //                 ihmeArrays[1].forEach(stat => {
+  //                   if (stat.date == data) {
+  //                     cell10.innerHTML = stat.hospitalizations
+  //                     cell11.innerHTML = stat.death
+  //                   }
+  //                 })
+  //
+  //                 ihmeArrays[2].forEach(stat => {
+  //                   if (stat.date == data) {
+  //                     cell12.innerHTML = stat.hospitalizations
+  //                     cell13.innerHTML = stat.death
+  //                   }
+  //                 })
+  //
+  //                 ihmeArrays[3].forEach(stat => {
+  //                   if (stat.date == data) {
+  //                     cell14.innerHTML = stat.hospitalizations
+  //                     cell15.innerHTML = stat.death
+  //                   }
+  //                 })
+  //
+  //                 ihmeArrays[4].forEach(stat => {
+  //                   if (stat.date == data) {
+  //                     cell16.innerHTML = stat.hospitalizations
+  //                     cell17.innerHTML = stat.death
+  //                   }
+  //                 })
+  //
+  //                 ihmeArrays[5].forEach(stat => {
+  //                   if (stat.date == data) {
+  //                     cell18.innerHTML = stat.hospitalizations
+  //                     cell19.innerHTML = stat.death
+  //                   }
+  //                 })
+  //
+  //
+  //
+  //
+  //
+  //
+  //               }
+  //
+  //
+  //
+  //               // console.log(dataObject);
+  //               let dates = [];
+  //               let projectionHospitalizations = [];
+  //               let projectionDeaths = [];
+  //               let actualHospitalizations = [];
+  //               let actualDeaths = [];
+  //               let marginHospitalizations = [];
+  //               let marginDeaths = [];
+  //
+  //               for (date in dataObject) {
+  //                 let row = dataObject[date];
+  //                 dates.push(row.date);
+  //                 projectionHospitalizations.push(row.projection.hospitalizations);
+  //                 projectionDeaths.push(row.projection.death);
+  //                 actualHospitalizations.push(row.actual.hospitalizations);
+  //                 actualDeaths.push(row.actual.death);
+  //                 marginHospitalizations.push(row.margin.hospitalizations);
+  //                 marginDeaths.push(row.margin.death);
+  //               }
+  //
+  //               dates.reverse();
+  //               projectionHospitalizations.reverse();
+  //               projectionDeaths.reverse();
+  //               actualHospitalizations.reverse();
+  //               actualDeaths.reverse();
+  //               marginHospitalizations.reverse();
+  //               marginDeaths.reverse();
+  //
+  //               function makeChart(id, dates, projectionData, labels, actualData) {
+  //                 let ctx = document.getElementById(id).getContext('2d');
+  //                 let chart = new Chart(ctx, {
+  //                     type: 'line',
+  //                     data: {
+  //                       labels: dates,
+  //                       datasets: [
+  //                         {
+  //                           label: labels.projectionLabel || '',
+  //                           backgroundColor: labels.color || 'rgb(94,204,132)',
+  //                           borderColor: labels.color || 'rgb(94,204,132)',
+  //                           data: projectionData,
+  //                           fill: false
+  //                         },
+  //                         {
+  //                           label: labels.actualLabel || '',
+  //                           backgroundColor: 'black',
+  //                           borderColor: 'black',
+  //                           data: actualData || [],
+  //                           fill: false
+  //                         }
+  //                       ]
+  //                     },
+  //                     options: {
+  //                       responsive: false,
+  //                       title: {
+  //                         display: true,
+  //                         text: [modelNameObject[selectedCommitDate], interventionsNames[intervention], labels.title] || ""
+  //                       },
+  //
+  //                       scales: {
+  //                           xAxes: [{
+  //                               scaleLabel: {
+  //                                   display: true,
+  //                                   labelString: 'date'
+  //                               },
+  //                               // ticks: {
+  //                               //     autoSkip: true,
+  //                               //     minRotation: 30,
+  //                               //     fontSize: 10
+  //                               // }
+  //                           }],
+  //                           yAxes: [{
+  //                               scaleLabel: {
+  //                                   display: true,
+  //                                   labelString: labels.yAxis || ''
+  //                               }
+  //                           }]
+  //                       },
+  //                       legend: {
+  //                           display: labels.legend
+  //                       },
+  //                     }
+  //
+  //
+  //                 });
+  //                 return chart;
+  //               }
+  //
+  //               hospitalizationsChart = makeChart('hospitalizations', dates, projectionHospitalizations, {
+  //                 projectionLabel: 'Projected',
+  //                 actualLabel: "Actual",
+  //                 title: "Hospitalizations (daily)",
+  //                 yAxis: 'hospitalizations (#)',
+  //                 legend: true
+  //               }, actualHospitalizations)
+  //
+  //               hospitalizationMarginsChart = makeChart('hospitalizationsMargin', dates, marginHospitalizations, {
+  //                 title: 'Hospitalizations (daily) margin of error',
+  //                 yAxis: 'hospitalizations (#)',
+  //                 legend: false,
+  //                 color: 'red'
+  //               })
+  //
+  //               deathsChart = makeChart('deaths', dates, projectionDeaths, {
+  //                 projectionLabel: 'Projected',
+  //                 actualLabel: "Actual",
+  //                 title: 'Deaths (cumulative)',
+  //                 yAxis: 'deaths (#)',
+  //                 legend: true
+  //               }, actualDeaths)
+  //
+  //               deathsMarginChart = makeChart('deathsMargin', dates, marginDeaths, {
+  //                 title: 'Deaths (cumulative) margin of error',
+  //                 yAxis: 'deaths (#)',
+  //                 legend: false,
+  //                 color: 'red'
+  //               });
+  //
+  //               let cumulativeErrorD = deathMarginsArray.reduce((a,b) => Math.abs(a) + Math.abs(b))
+  //               let averageErrorD = cumulativeErrorD/deathMarginsArray.length
+  //               let cumulativeErrorH = hospitalizationsMarginsArray.reduce((a,b) => Math.abs(a)+Math.abs(b))
+  //               let averageErrorH = cumulativeErrorH/hospitalizationsMarginsArray.length
+  //
+  //               let a = document.getElementById('cumulativeErrorD').innerHTML = cumulativeErrorD;
+  //               let b = document.getElementById('averageErrorD').innerHTML = averageErrorD;
+  //               let c = document.getElementById('cumulativeErrorH').innerHTML = cumulativeErrorH;
+  //               let d = document.getElementById('averageErrorH').innerHTML = averageErrorH;
+  //             })
+  //         });
+  //     });
+  //   }
+  //
+  //   let list = document.getElementById('commitDate');
+  //   for (model in modelNameObject) {
+  //     let option = document.createElement('option');
+  //     option.innerHTML = modelNameObject[model]
+  //     option.value = model
+  //     list.append(option);
+  //   }
+  //
+  //   // loadData("06-01-2020", "US", 2);
+  //   loadData("06-06-2020", "CA", 2);
+  //
+  //
+  //
+    function exportTableToExcel(tableID = "all"){
+        var selectedCommitDate = document.getElementById('commitDate').value;
+        var selectedState = document.getElementById('state').value;
+        var intervention = document.getElementById('intervention').value;
+
+        let fileName = selectedCommitDate + " " + selectedState + " (" + intervention + ")";
+
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        fileName = fileName?fileName+'.xls':'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if(navigator.msSaveOrOpenBlob){
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob( blob, fileName);
+        }else{
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = fileName;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+
+    let modelsArray = [{ name: "actual", folderName: "actual", commit: "00-00-0000", hasHospitalizations: true }];
+    models.forEach(model => {
+      model.dates.forEach(date => {
+        modelsArray.push({
+          name: model.name,
+          folderName: model.folderName,
+          commit: date,
+          hasHospitalizations: model.hasHospitalizations
+        })
+      })
+    })
+
+    function getJson(folderName, commit, state, intervention = 2) {
+      let url = '/public/data/' + folderName + "/" + commit + '/' + state + '.json'
+      if (folderName == "projections") url = '/public/data/' + folderName + "/" + commit + '/' + intervention + '/' + state  + '.json'
+      if (folderName == "actual") url = '/public/data/actual/' + state  + '.json'
+
+      return fetch(url).then(data => data.json())
+    }
+
+    function pullData (modelsArray, state = "CA", intervention = 2) {
+      return Promise.all(
+        modelsArray.map(model => getJson(model.folderName, model.commit, state, intervention))
+      );
+    }
+
+    let startDate = "03-04-2020"
+    let lastDate = "06-08-2020"
+
+    function loadApp(modelsArray, state = "CA", intervention = 2) {
+      pullData(modelsArray, state, intervention)
+        .then(data => {
+          let actualObject = {}
+          data[0].forEach(actual => actualObject[actual.date] = actual)
+
+          let results = data.map((model, index) => {
+            let hasHospitalizations = modelsArray[index].hasHospitalizations;
+            return model.map(row => { // add margin of errors to each data
+              if (row.date <= lastDate && row.date >= startDate) {
+                let newRow = row;
+                let death = row.death || 0;
+                if (actualObject[row.date] != undefined) {
+                  let actualDeath = actualObject[row.date].death || 0;
+                  newRow.deathMarginOfError = death - actualDeath
+                  if (hasHospitalizations) {
+                    let hospitalizations = row.hospitalizations || 0;
+                    let actualHospitalizations = actualObject[row.date].hospitalizations || 0;
+                    newRow.hospitalizationsMarginOfError = hospitalizations - actualHospitalizations
+                  }
+                  return newRow
+                }
+              }
+            }).filter(x => (x != undefined))
+          })
+
+          let actuals = results[0];
+
+          modelsArray.forEach((model, i) => {
+            let finalResults = new Array(actuals.length)
+            actuals.forEach((actual, j) => {
+              results[i].forEach(row => {
+                if (row.date == actual.date) finalResults[j] = row
+              })
+            })
+            modelsArray[i].results = finalResults;
+          })
+
+          const dataTable = document.getElementById("all");
+          let tr = dataTable.tHead.children[0];
+          let row = dataTable.insertRow(1);
+          let cell = row.insertCell(0);
+          cell.innerHTML = 'date';
+
+          let cellCounter = 1;
+          modelsArray.forEach(model => {
+            let title = model.name + " " + model.commit
+            let th = document.createElement('th');
+            th.setAttribute("colspan", "2");
+
+            let cell1 = row.insertCell(cellCounter);
+            cellCounter++
+            cell1.innerHTML = 'death';
+            let cell2 = row.insertCell(cellCounter);
+            cellCounter++
+            cell2.innerHTML = 'death margin of error';
+
+            if (model.name == "actual") {
+              title = model.name;
+              cell2.innerHTML = 'hospitalizations';
+
+              th.setAttribute("colspan", "2");
+            } else if (model.hasHospitalizations) {
+              th.setAttribute("colspan", "4");
+              let cell3 = row.insertCell(cellCounter);
+              cellCounter++
+              cell3.innerHTML = 'hospitalizations';
+              let cell4 = row.insertCell(cellCounter);
+              cellCounter++
+              cell4.innerHTML = 'hospitalizations margin of error';
+            }
+
+            th.innerHTML = title;
+            tr.appendChild(th);
+
+
+
+
+          })
+
+          actuals.forEach((actual, index) => {
+            let cellCounter = 3;
+            let row = dataTable.insertRow(2);
+            let cell0 = row.insertCell(0);
+            let cell1 = row.insertCell(1);
+            let cell2 = row.insertCell(2);
+            cell0.innerHTML = actual.date;
+            cell1.innerHTML = actual.death
+            cell2.innerHTML = actual.hospitalizations
+
+            modelsArray.forEach(model => {
+              if (model.name == "actual") return;
+              let hasHospitalizations = model.hasHospitalizations;
+              let results = model.results;
+              // console.log(results)
+
+              if (results[index] != undefined) {
+                let cell3 = row.insertCell(cellCounter);
+                cellCounter++;
+                let cell4 = row.insertCell(cellCounter);
+                cellCounter++;
+                cell3.innerHTML = results[index].death || ""
+                cell4.innerHTML = results[index].deathMarginOfError || ""
+                if (hasHospitalizations) {
+                  let cell5 = row.insertCell(cellCounter);
+                  cellCounter++;
+                  let cell6 = row.insertCell(cellCounter);
+                  cellCounter++;
+                  cell5.innerHTML = results[index].hospitalizations || ""
+                  cell6.innerHTML = results[index].hospitalizationsMarginOfError || ""
+                }
+              } else {
+                let cell3 = row.insertCell(cellCounter);
+                cellCounter++;
+                let cell4 = row.insertCell(cellCounter);
+                cellCounter++;
+                cell3.innerHTML = ""
+                cell4.innerHTML = ""
+                if (hasHospitalizations) {
+                  let cell5 = row.insertCell(cellCounter);
+                  cellCounter++;
+                  let cell6 = row.insertCell(cellCounter);
+                  cellCounter++;
+                  cell5.innerHTML = ""
+                  cell6.innerHTML = ""
+                }
+              }
+            })
+          })
+        })
+    }
+      loadApp(modelsArray)
+      function newData () {
+        // var selectedCommitDate = document.getElementById('commitDate').value;
+        var selectedState = document.getElementById('state').value;
+        var intervention = document.getElementById('intervention').value;
+
+        var rowLength = document.getElementById("all").rows.length;
+        console.log
+        for (let i = 1; i < rowLength; i++) {
+          document.getElementById('all').deleteRow(1)
+        }
+
+        loadApp(modelsArray, selectedState, intervention)
+      }
+
+</script>
+</html>
