@@ -94,6 +94,15 @@ app.get('/all', (req, res) => {
   res.sendFile(path.join(__dirname + '/allTable.html'));
 })
 
+app.get('/beta', (req, res) => {
+  res.sendFile(path.join(__dirname + '/beta.html'));
+});
+
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(__dirname + '/test.html'));
+});
+
+
 app.listen(process.env.PORT || 9999, () => {
   console.log("listening...");
 });

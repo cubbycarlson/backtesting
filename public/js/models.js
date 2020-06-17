@@ -2,6 +2,9 @@ let modelsRaw = [
   {
     name: "can",
     folderName: "projections",
+    hasSubFolders: true,
+    subFolders: ["0", "1", "2", "3"],
+    displayName: "Covid Act Now",
     dates: [
       "03-19-2020",
       "03-23-2020",
@@ -28,11 +31,16 @@ let modelsRaw = [
       "06-05-2020",
       "06-06-2020"
       ],
-    hasHospitalizations: true
+    hasHospitalizations: true,
+    countryLevel: true,
+    stateLevel: true,
+    // countyLevel: true
   },
 
   { name: "ihme",
     folderName: "IHME",
+    displayName: "IHME",
+    hasSubFolders: false,
     dates: [
       "03-25-2020",
       "03-31-2020",
@@ -41,40 +49,46 @@ let modelsRaw = [
       "05-20-2020",
       "05-29-2020"
       ],
-    hasHospitalizations: true
+    hasHospitalizations: true,
+    countryLevel: true,
+    stateLevel: true
   },
-  //
-  // cdc: {
-  //   folderName: "projections",
-  //   dates: [
-  //     "higher",
-  //     "lower"
-  //   ],
-  //   hasHospitalizations: true
-  // },
+
 
   { name: 'ucla',
     folderName: "UCLA",
+    displayName: "UCLA",
+    hasSubFolders: false,
     // baseUrl: prefix + "/UCLA-SuEIR",
     dates: ["2020-05-01", "2020-05-10", "2020-05-17", "2020-05-24", "2020-05-31", "2020-06-07"],
     suffix: "-UCLA-SuEIR.csv",
-    hasHospitalizations: false
+    hasHospitalizations: false,
+    countryLevel: true,
+    stateLevel: true
   },
 
   { name: 'mit',
     folderName: "MIT",
+    displayName: "MIT",
+    hasSubFolders: false,
     // baseUrl: prefix + "/MIT_CovidAnalytics-DELPHI",
     dates: ["2020-04-22", "2020-04-27", "2020-04-30", "2020-05-04", "2020-05-10", "2020-05-18", "2020-05-25", "2020-06-01", "2020-06-08"],
     suffix: "-MIT_CovidAnalytics-DELPHI.csv",
-    hasHospitalizations: false
+    hasHospitalizations: false,
+    countryLevel: true,
+    stateLevel: true
   },
 
   { name: 'ut',
     folderName: "UT",
+    displayName: "University of Texas",
+    hasSubFolders: false,
     // baseUrl: prefix + "/UT-Mobility",
     dates: ["2020-04-20", "2020-04-27", "2020-05-04", "2020-05-11", "2020-05-18", "2020-05-25", "2020-06-01", "2020-06-08"],
     suffix: "-UT-Mobility.csv",
-    hasHospitalizations: false
+    hasHospitalizations: false,
+    countryLevel: true,
+    stateLevel: true
   }
 ]
 
@@ -92,4 +106,29 @@ let models = modelsRaw.map(model => {
   let newModel = model;
   newModel.dates = model.dates.map(date => rearrangeDate(date))
   return newModel
+})
+
+
+let modelsAvailable = {
+  death: {
+    country: [],
+    state: [],
+    // county: []
+  },
+  hospitalizations: {
+    country: [],
+    state: [],
+    // county: []
+  }
+}
+
+models.forEach(model => {
+  let name = model.name;
+  if (model.countryLevel) modelsAvailable.death.country.push(name)
+  if (model.stateLevel) modelsAvailable.death.state.push(name)
+  // if (model.countyLevel) DO THIS LATER
+  if (model.hasHospitalizations) {
+    if (model.countryLevel) modelsAvailable.hospitalizations.country.push(name)
+    if (model.stateLevel) modelsAvailable.hospitalizations.state.push(name)
+  }
 })

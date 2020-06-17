@@ -59,64 +59,68 @@ function getData() {
    return Promise.all(urls);
 }
 
-getData()
-  .then(nothing => {
-    let hospitalizationsRaw = fs.readFileSync(__dirname + '/public/data/test/actual/hospitalizations.json');
-    let hospitalizationsData = JSON.parse(hospitalizationsRaw);
+function getActualData() {
+  getData()
+    .then(nothing => {
+      let hospitalizationsRaw = fs.readFileSync(__dirname + '/public/data/test/actual/hospitalizations.json');
+      let hospitalizationsData = JSON.parse(hospitalizationsRaw);
 
-    let usaData = [];
-    fs.createReadStream(__dirname + '/public/data/test/actual/us.csv')
-      .pipe(csv())
-      .on('data', data => usaData.push(data))
-      .on('end', () => {
-        console.log("usa format:", usaData[0])
+      let usaData = [];
+      fs.createReadStream(__dirname + '/public/data/test/actual/us.csv')
+        .pipe(csv())
+        .on('data', data => usaData.push(data))
+        .on('end', () => {
+          console.log("usa format:", usaData[0])
 
-        let statesData = [];
-        fs.createReadStream(__dirname + '/public/data/test/actual/states.csv')
-          .pipe(csv())
-          .on('data', data => statesData.push(data))
-          .on('end', () => {
-            console.log("state format:", statesData[0])
+          let statesData = [];
+          fs.createReadStream(__dirname + '/public/data/test/actual/states.csv')
+            .pipe(csv())
+            .on('data', data => statesData.push(data))
+            .on('end', () => {
+              console.log("state format:", statesData[0])
 
-            for (state in states) {
-              let stateHospitalizations = hospitalizationsData
-                .filter(a => a.state === state)
-                .map(b => {
-                  return {
-                    date: parseDate(b.date.toString()),
-                    hospitalizations: b.hospitalizedCurrently || 0
-                  }
+              for (state in states) {
+                let stateHospitalizations = hospitalizationsData
+                  .filter(a => a.state === state)
+                  .map(b => {
+                    return {
+                      date: parseDate(b.date.toString()),
+                      hospitalizations: b.hospitalizedCurrently || 0
+                    }
+                  })
+                  .reverse()
+
+                let stateDeath = statesData
+                  .filter(a => a.state === states[state])
+                  .map(b => {
+                    return {
+                      date: rearrangeDate(b.date),
+                      death: Number(b.deaths)
+                    }
+                  })
+
+                let stateArray = [];
+                let stateArrayObject = { hospitalizations: 0, death: 0 }
+                stateDeath.forEach(deathRow => {
+                  stateHospitalizations.forEach(hospRow => {
+                    if (deathRow.date == hospRow.date) {
+                      stateArray.push({
+                        date: deathRow.date,
+                        hospitalizations: hospRow.hospitalizations,
+                        death: deathRow.death
+                      })
+                    }
+                  })
                 })
-                .reverse()
-
-              let stateDeath = statesData
-                .filter(a => a.state === states[state])
-                .map(b => {
-                  return {
-                    date: rearrangeDate(b.date),
-                    death: Number(b.deaths)
-                  }
+                fs.writeFileSync(__dirname + '/public/data/actual/' + state + '.json', JSON.stringify(stateArray), err => {
+                  if (err) throw err;
+                  console.log('updating');
                 })
-
-              let stateArray = [];
-              let stateArrayObject = { hospitalizations: 0, death: 0 }
-              stateDeath.forEach(deathRow => {
-                stateHospitalizations.forEach(hospRow => {
-                  if (deathRow.date == hospRow.date) {
-                    stateArray.push({
-                      date: deathRow.date,
-                      hospitalizations: hospRow.hospitalizations,
-                      death: deathRow.death
-                    })
-                  }
-                })
-              })
-              fs.writeFileSync(__dirname + '/public/data/actual/' + state + '.json', JSON.stringify(stateArray), err => {
-                if (err) throw err;
-                console.log('updating');
-              })
-            }
+              }
+          })
         })
-      })
-  })
-  .catch(err => console.log(err))
+    })
+    .catch(err => console.log(err))
+}
+
+exports.getActualData = getActualData;

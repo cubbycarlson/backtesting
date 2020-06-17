@@ -1,0 +1,630 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>CAN Backtesting</title>
+
+    <!-- popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <!-- boostrap-select -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
+    <!-- chart js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+
+    <!-- date range picker -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+    <!-- app data -->
+    <script src="../public/js/states.js"></script>
+    <script src="../public/js/dateToCommit.js"></script>
+    <script src="../public/js/models.js"></script>
+    <script src="../public/js/colors.js"></script>
+
+    <style type="text/css">
+
+    </style>
+
+  </head>
+
+  <body>
+    <div id="app">
+      <div id="addFormDiv">
+          <form id="addForm" class="form-horizontal col-md-12">
+            <div class="form-group">
+              <legend>Death</legend>
+              <label for="location">Location</label>
+              <div>
+                <select id="location" name="locations" class="selectpicker" data-show-subtext="true" data-live-search="true" data-size="10">
+                  <!-- put locations here -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="model">Model</label>
+                <div>
+                  <select id="model" class="selectpicker" data-show-subtext="true" data-live-search="true" data-size="10">
+                    <!-- put models here -->
+                  </select>
+                </div>
+              </div>
+
+
+              <button type="button" class="btn btn-secondary" onclick="addData('death')">Add Data</span></button>
+          </form>
+        </div>
+      </div>
+
+      <div class="chartDiv">
+        <canvas id="chartCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <div id="addFormDivHospitalizations">
+          <form id="addFormHospitalizations" class="form-horizontal col-md-12">
+            <div class="form-group">
+              <legend>Hospitalizations</legend>
+              <label for="locationHospitalizations">Location</label>
+              <div>
+                <select id="locationHospitalizations" name="locations" class="selectpicker" data-show-subtext="true" data-live-search="true" data-size="10">
+                  <!-- put locations here -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="modelHospitalizations">Model</label>
+                <div>
+                  <select id="modelHospitalizations" class="selectpicker" data-show-subtext="true" data-live-search="true" data-size="10">
+                    <!-- put models here -->
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-secondary" onclick="addData('hospitalizations')">Add Data</span></button>
+          </form>
+        </div>
+      </div>
+
+      <div class="chartDiv">
+        <canvas id="chartCanvasHospitalizations" width="600" height="600"></canvas>
+      </div>
+
+    </div>
+
+  </body>
+
+  <script type="text/javascript">
+    function getJson(folderName, commit, state, intervention) {
+      let url = '/public/data/' + folderName + "/" + commit + '/' + state + '.json'
+      if (folderName == "projections") url = '/public/data/' + folderName + "/" + commit + '/' + intervention + '/' + state  + '.json'
+      if (folderName == "actual") url = '/public/data/actual/' + state  + '.json'
+
+      return fetch(url).then(data => data.json())
+    }
+
+    function pullData (folderName, commit, state, intervention) {
+      return Promise.all([getJson(folderName, commit, state, intervention)]);
+    }
+
+    function makeChart(id, dates, datasets, information = { title: "title", xAxis: "xAxis", yAxis: "yAxis" }) {
+      let ctx = document.getElementById(id).getContext('2d');
+      let chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: dates.map(date => date.substring(0,5)),
+            datasets: datasets
+          },
+          options: {
+            responsive: false,
+            title: {
+              display: true,
+              text: information.title
+            },
+
+            scales: {
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Date"
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        autoSkipPadding: 20,
+                        maxRotation: 0,
+                        minRotation: 0,
+                        fontSize: 13
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: information.yAxis
+                    }
+                }]
+            },
+            legend: {
+              position: "bottom",
+                // display: false
+            },
+          }
+
+
+      });
+      return chart;
+    }
+
+    let actuals = [];
+    let dates = [];
+    let actualDeath = [];
+    let actualHospitalizations = [];
+    let chartCanvas;
+    let chartCanvasHospitalizations;
+    let colors = generateColor("000000", "FFFFFF", 20);
+    let colorIndex = 0;
+
+
+
+    pullData("actual", "0", "CA")
+      .then(raw => {
+
+        let datasetsDeath = [];
+        let datasetsHospitalization = [];
+
+        actuals = raw[0]
+        dates = actuals.map(row => row.date)
+        actualDeath = actuals.map(row => row.death)
+        actualHospitalizations = actuals.map(row => row.hospitalizations)
+
+        datasetsDeath.push({
+          label: "Actual (New York Times)",
+          backgroundColor: "blue",
+          borderColor: "blue",
+          data: actualDeath,
+          fill: false
+        })
+
+        datasetsHospitalization.push({
+          label: "Actual (Covid Tracking)",
+          backgroundColor: "blue",
+          borderColor: "blue",
+          data: actualHospitalizations,
+          fill: false
+        })
+
+        chartCanvas = makeChart("chartCanvas", dates, datasetsDeath, { title: "Cumulative Deaths", yAxis: "Cumulative Deaths (#)" })
+        chartCanvasHospitalizations = makeChart("chartCanvasHospitalizations", dates, datasetsHospitalization, {  title: "Daily Hospitalizations", yAxis: "Daily Hospitalizations (#)" })
+
+      })
+
+    let locationGroup = "Countries"
+    let modelToAdd = ""
+    let modelToAddHospitalization = ""
+    let canInterventions = [
+      "No Intervention", // 0
+      "Weak Shelter in Place", // 1
+      "Projected", // 2
+      "Strong Shelter in Place" // 3
+    ];
+
+    let locationLabels = ["Countries", "States", "Counties"]
+    let locationArrays = [["United States"], [], []]
+    for (state in states) {
+      locationArrays[1].push(states[state]);
+    }
+
+    $.each(locationLabels, function(i) {
+      let optGroup = $("<optgroup>");
+
+      optGroup.attr("label", locationLabels[i])
+      let locationArray = locationArrays[i];
+      $.each(locationArray, function(j) {
+        var option = $("<option></option>");
+
+        option.attr({ value: locationArray[j] }).text(locationArray[j])
+        if (locationArray[j] == "California") {
+          option.attr("selected", "selected")
+        }
+        console.log(locationArray[j])
+        optGroup.append(option);
+      });
+
+      $("#location").append(optGroup)
+    })
+
+    $('#location').selectpicker('refresh');
+
+    $('#location').on('change', function () {
+      locationGroup = $(this.options[this.selectedIndex]).closest('optgroup').prop('label');
+
+      let availableModels = ["actual"];
+
+      if (locationGroup == "Countries") {
+        availableModels = availableModels.concat(modelsAvailable['death'].country)
+      } else if (locationGroup == "States") {
+        availableModels = availableModels.concat(modelsAvailable['death'].state)
+      }
+
+      let labels = [];
+      let options = [];
+      availableModels.forEach(avail => {
+        if (avail == "actual") {
+          labels.push("Actual")
+          options.push(["New York Times"])
+        } else {
+          models.forEach(model => {
+            if (model.name == avail) {
+              if (model.name == 'can') {
+                model.dates.forEach(canDate => {
+                  labels.push(model.displayName + " " + canDate)
+                  options.push(canInterventions)
+                })
+              } else {
+                labels.push(model.displayName);
+                options.push(model.dates);
+              }
+            }
+          })
+        }
+      })
+
+      $("#model").empty();
+      $.each(labels, function(i) {
+        let optGroup = $("<optgroup>");
+        optGroup.attr("label", labels[i])
+        let specificOptions = options[i];
+
+        $.each(specificOptions, function(j) {
+          var option = $("<option></option>");
+          option.attr({ 'data-subtext': labels[i] }).text(specificOptions[j])
+          optGroup.append(option);
+        });
+
+        $("#model").append(optGroup)
+      })
+
+      $('#model').selectpicker('refresh');
+
+      $('#model').click(function() {
+        $(this).find('option:selected').remove();
+      });
+      modelToAdd = ""
+    });
+
+    $.each(locationLabels, function(i) {
+      let optGroup = $("<optgroup>");
+
+      optGroup.attr("label", locationLabels[i])
+      let locationArray = locationArrays[i];
+      $.each(locationArray, function(j) {
+        var option = $("<option></option>");
+
+        option.attr({ value: locationArray[j] }).text(locationArray[j])
+        optGroup.append(option);
+      });
+
+      $("#locationHospitalizations").append(optGroup)
+    })
+
+    $('#locationHospitalizations').selectpicker('refresh');
+
+    $('#locationHospitalizations').on('change', function () {
+      locationGroup = $(this.options[this.selectedIndex]).closest('optgroup').prop('label');
+
+      let availableModels = ["actual"];
+
+      if (locationGroup == "Countries") {
+        availableModels = availableModels.concat(modelsAvailable['hospitalizations'].country)
+      } else if (locationGroup == "States") {
+        availableModels = availableModels.concat(modelsAvailable['hospitalizations'].state)
+      }
+
+      let labels = [];
+      let options = [];
+      availableModels.forEach(avail => {
+        if (avail == "actual") {
+          labels.push("Actual")
+          options.push(["New York Times"])
+        } else {
+          models.forEach(model => {
+            if (model.name == avail) {
+              if (model.name == 'can') {
+                model.dates.forEach(canDate => {
+                  labels.push(model.displayName + " " + canDate)
+                  options.push(canInterventions)
+                })
+              } else {
+                labels.push(model.displayName);
+                options.push(model.dates);
+              }
+            }
+          })
+        }
+      })
+
+      $("#modelHospitalizations").empty();
+      $.each(labels, function(i) {
+        let optGroup = $("<optgroup>");
+        optGroup.attr("label", labels[i])
+        let specificOptions = options[i];
+
+        $.each(specificOptions, function(j) {
+          var option = $("<option></option>");
+          option.attr({ 'data-subtext': labels[i] }).text(specificOptions[j])
+          optGroup.append(option);
+        });
+
+        $("#modelHospitalizations").append(optGroup)
+      })
+
+      $('#modelHospitalizations').selectpicker('refresh');
+
+      $('#modelHospitalizations').click(function() {
+        $(this).find('option:selected').remove();
+      });
+      modelToAddHospitalization = ""
+    });
+
+    let modelGroup = "Actual"
+
+    $('select').change(function() {
+        // fix this one day
+        var selected = $(':selected', this);
+        let modelToAddCheck = selected.closest('optgroup').attr('label')
+        if (modelToAddCheck != "Countries" && modelToAddCheck != "States" && modelToAddCheck != "Counties") {
+          modelToAdd = modelToAddCheck
+        }
+    });
+
+    function addData(metric) {
+
+      let location = document.getElementById("location").value;
+      if (location == "United States") {
+        location = "US"
+      } else {
+        location = reverseStates[location]
+      }
+
+      let commitDate = document.getElementById("model").value;
+      let interventionIndex = -1;
+
+      if (modelToAdd.includes("Covid Act Now")) {
+        canInterventions.forEach((intervention, index) => {
+          if (commitDate == intervention) interventionIndex = index
+        })
+        commitDate = modelToAdd.slice(14, modelToAdd.length)
+        modelToAdd = "Covid Act Now";
+      }
+
+      // console.log(
+      //   location, // full name of location ('Arkansas')
+      //   modelToAdd, // full name of model ("Covid Act Now")
+      //   commitDate, // MM-DD-YYYY
+      //   interventionIndex // int (0,1,2,3) or -1 if no intervention
+      // );
+
+      let folderName;
+
+      if (modelToAdd == "Actual") {
+        folderName = "actual"
+      } else {
+        models.forEach(model => {
+          if (model.displayName == modelToAdd) folderName = model.folderName;
+        })
+      }
+
+      pullData(folderName, commitDate, location, interventionIndex)
+        .then(data => {
+          // console.log(metric)
+          // console.log(data);
+          let labelString = states[location] + " (" + modelToAdd + " - " + commitDate + " Commit)"
+          if (folderName == "projections") {
+            labelString = states[location] + " (" + modelToAdd + ", " + canInterventions[interventionIndex] + " - " + commitDate + " Commit)"
+          }
+
+          let dataArray = new Array(dates.length)
+          dates.forEach((date, index) => {
+            data[0].forEach(row => {
+              if (row.date == date && row.date >= commitDate) {
+                dataArray[index] = row[metric]
+              }
+            })
+          })
+
+
+          let datasets = {
+            label: labelString,
+            backgroundColor: colors[colorIndex],
+            borderColor: colors[colorIndex],
+            data: dataArray,
+            fill: false
+          }
+          colorIndex += 1
+
+          if (metric == "death") {
+            chartCanvas.data.datasets = chartCanvas.data.datasets.concat(datasets);
+            chartCanvas.update();
+          } else if (metric == "hospitalizations") {
+            chartCanvasHospitalizations.data.datasets = chartCanvasHospitalizations.data.datasets.concat(datasets);
+            chartCanvasHospitalizations.update();
+          }
+
+          // {
+          //   label: labels.projectionLabel || '',
+          //   backgroundColor: labels.color || 'rgb(94,204,132)',
+          //   borderColor: labels.color || 'rgb(94,204,132)',
+          //   data: projectionData,
+          //   fill: false
+          // }
+
+
+
+        })
+    }
+
+
+    // let modelsArray = [{ name: "actual", displayName: "Actual Data (New York Times)", folderName: "actual", commit: "03-04-2020", hasHospitalizations: true }];
+    //
+    // models.forEach(model => {
+    //   model.dates.forEach(date => {
+    //     modelsArray.push({
+    //       name: model.name,
+    //       folderName: model.folderName,
+    //       displayName: model.displayName,
+    //       commit: date,
+    //       hasHospitalizations: model.hasHospitalizations
+    //     })
+    //   })
+    // })
+    //
+
+    //
+
+    //
+    // let startDate = "03-04-2020"
+    // let lastDate = "06-08-2020"
+    // let actuals = [];
+    // let currentActuals = [];
+    // let data = [];
+    //
+    //
+    // function loadApp(modelsArray, state, intervention, callback = function (){}) {
+    //   pullData(modelsArray, state, intervention)
+    //     .then(data => {
+    //       let actualObject = {}
+    //       data[0].forEach(actual => actualObject[actual.date] = actual)
+    //
+    //       let results = data.map((model, index) => {
+    //         let hasHospitalizations = modelsArray[index].hasHospitalizations;
+    //         let commitDate = modelsArray[index].commit
+    //         return model.map(row => { // add margin of errors to each data
+    //           if (row.date <= lastDate && row.date >= startDate && row.date >= commitDate) {
+    //             let newRow = row;
+    //             let death = row.death || 0;
+    //             if (actualObject[row.date] != undefined) {
+    //               let actualDeath = actualObject[row.date].death || 0;
+    //               newRow.deathMarginOfError = death - actualDeath
+    //               if (hasHospitalizations) {
+    //                 let hospitalizations = row.hospitalizations || 0;
+    //                 let actualHospitalizations = actualObject[row.date].hospitalizations || 0;
+    //                 newRow.hospitalizationsMarginOfError = hospitalizations - actualHospitalizations
+    //               }
+    //               return newRow
+    //             }
+    //           }
+    //         }).filter(x => (x != undefined))
+    //       })
+    //
+    //       actuals = results[0];
+    //       currentActuals = actuals;
+    //       currentActuals.forEach((actual, index) => currentActuals[index].display = true);
+    //
+    //       modelsArray.forEach((model, i) => {
+    //         let finalResults = new Array(actuals.length)
+    //         actuals.forEach((actual, j) => {
+    //           results[i].forEach(row => {
+    //             if (row.date == actual.date) finalResults[j] = row
+    //           })
+    //         })
+    //         modelsArray[i].data = finalResults;
+    //       })
+    //
+    //       // modelsArray is now an array of objects with stucture:
+    //       // {
+    //           // commit: "MM-DD-YYYY" (STRING)
+    //           // folderName: STRING
+    //           // displayName: STRING
+    //           // hasHospitalizations: BOOLEAN
+    //           // name: STRING
+    //           // data: ARRAY // array where indices match label indices
+    //       // }
+    //
+    //       function makeChart(labels, datasets, id = "chartCanvas") {
+    //         // labels is array of x-axis data
+    //         // datasets is an array with object of structure:
+    //             // {
+    //             //   label: STRING,
+    //             //   backgroundColor: COLOR (STRING),
+    //             //   borderColor: COLOR (STRING),
+    //             //   data: ARRAY // array where indices match labels indices
+    //             //   fill: false (BOOLEAN)
+    //             // }
+    //
+    //         let ctx = document.getElementById(id).getContext('2d');
+    //         let chart = new Chart(ctx, {
+    //             type: 'line',
+    //             data: { labels, datasets },
+    //             options: {
+    //               responsive: true,
+    //               title: {
+    //                 display: true,
+    //                 text: "Covid Act Now Backtesting Tool"
+    //               },
+    //
+    //               scales: {
+    //                   xAxes: [{
+    //                       scaleLabel: {
+    //                           display: true,
+    //                           labelString: 'date'
+    //                       },
+    //                       // ticks: {
+    //                       //     autoSkip: true,
+    //                       //     minRotation: 30,
+    //                       //     fontSize: 10
+    //                       // }
+    //                   }],
+    //                   yAxes: [{
+    //                       scaleLabel: {
+    //                           display: true,
+    //                           labelString: "labelString"
+    //                       }
+    //                   }]
+    //               },
+    //               legend: {
+    //                   display: "labelString"
+    //               },
+    //             }
+    //         });
+    //         return chart;
+    //       }
+    //
+    //       let labels = modelsArray[0].data.map(all => all.date)
+    //
+    //       let filteredData = []
+    //       modelsArray.forEach(model => {
+    //         let filteredModel = model;
+    //         filteredModel.label = model.displayName + " (" + model.commit + ")"
+    //         filteredModel.data = model.data.map(all => all.death);
+    //         filteredModel.fill = false;
+    //         filteredModel.spanGaps = true;
+    //         filteredModel.hidden = (model.name != "actual");
+    //         filteredData.push(filteredModel)
+    //       })
+    //
+    //       let chart = makeChart(labels, filteredData)
+    //       callback(chart, filteredData);
+    //
+    //     })
+    // }
+    //
+    // let chart = undefined;
+    //
+    // function globalChart (liveChart, filteredData) {
+    //   chart = liveChart;
+    //   data = filteredData;
+    //   changeDateRange("02-20-2020", "09-20-2020")
+    // }
+    //
+    // loadApp(modelsArray, "CA", 2, globalChart)
+
+
+</script>
+</html>

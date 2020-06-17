@@ -52,5 +52,10 @@ const states = {
   'WY': 'Wyoming',
 };
 
+const reverseStates = {};
+for (state in states) {
+  reverseStates[states[state]] = state
+}
+
 const stateAbbreviations = [];
 for (const property in states) stateAbbreviations.push(property)
