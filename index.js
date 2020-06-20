@@ -15,6 +15,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/index.html'));
 })
 
+app.get('/old', (req, res) => {
+  console.log("request at /");
+  res.sendFile(path.join(__dirname + '/old.html'));
+})
+
 app.get('/comparison', (req, res) => {
   console.log("request at /comparison");
   res.sendFile(path.join(__dirname + '/comparison.html'));

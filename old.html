@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>CAN Backtesting</title>
+
+    <style type="text/css">/* Chart.js */
+      h1, h2, h3, h4, p, ul, li {
+        /* font-family: 'News Cycle', sans-serif; */
+      }
+
+      body {
+        background-color: rgba(240, 240, 240, 1.0);
+      }
+
+      table {
+        font-size: 10px
+      }
+
+      #bigTable {
+        padding: 70px;
+      }
+
+      .logo, .signup {
+        display: block;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        width: 10%;
+      }
+
+      .issues {
+        margin-left: 50px;
+        margin-bottom: 50px;
+      }
+
+      .info {
+        margin-left: 30px;
+        margin-top: -15px;
+      }
+
+      .chartContainer {
+        display: inline-block;
+      }
+
+      #newDataButton {
+        padding-top: 36.5px;
+        padding-left: 5px;
+      }
+
+      #formContainer {
+        padding:20px;
+      }
+
+      .select{
+        padding:5px;
+      }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=News+Cycle:400,700&display=swap" rel="stylesheet">
+
+    <!-- CSS only -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+
+    <script src="./public/js/states.js"></script>
+    <script src="./public/js/dateToCommit.js"></script>
+
+  </head>
+
+  <body>
+    <div id="app">
+      <div>
+        <a href="/"><img class="logo" src="https://covidactnow.org/static/media/can_logo.0ac0983b.png"></a>
+      </div>
+
+      <div id="formContainer" class="row justify-content-center">
+        <form onsubmit="return false">
+          <div class="form-row">
+            <div class="select">
+              <label for="commitDate">model</label>
+              <select id="commitDate" class="custom-select custom-select-sm">
+                <!-- options generated here -->
+              </select>
+            </div>
+            <div class="select">
+              <label for="intervention">intervention</label>
+              <select id="intervention" class="custom-select custom-select-sm">
+                <option value="0">No Action (#0)</option>
+                <option value="1">Strict Shelter-in-Place (#1)</option>
+                <option value="2" selected>Projected (#2)</option>
+                <option value="3">Lax Shelter-in-Place (#3)</option>
+              </select>
+            </div>
+            <div class="select">
+              <label for="state">state</label>
+              <select id="state" class="custom-select custom-select-sm">
+                <option value="US">United States (US)</option>
+                <option value="AK">Alaska (AK)</option>
+                <option value="AL">Alabama (AL)</option>
+                <option value="AZ">Arizona (AZ)</option>
+                <option value="AR">Arkansas (AK)</option>
+                <option value="CA" selected>California (CA)</option>
+                <option value="CO">Colorado (CO)</option>
+                <option value="CT">Connecticut (CT)</option>
+                <option value="DC">District of Columbia (DC)</option>
+                <option value="DE">Delaware (DE)</option>
+                <option value="FL">Florida (FL)</option>
+                <option value="GA">Georgia (GA)</option>
+                <option value="HI">Hawaii (HI)</option>
+                <option value="ID">Idaho (ID)</option>
+                <option value="IL">Illinois (IL)</option>
+                <option value="IN">Indiana (IN)</option>
+                <option value="IA">Iowa (IA)</option>
+                <option value="KS">Kansas (KS)</option>
+                <option value="KY">Kentucky (KY)</option>
+                <option value="LA">Louisiana (LA)</option>
+                <option value="ME">Maine (ME)</option>
+                <option value="MD">Maryland (MD)</option>
+                <option value="MA">Massachusetts (MA)</option>
+                <option value="MI">Michigan (MI)</option>
+                <option value="MN">Minnesota (MN)</option>
+                <option value="MS">Mississippi (MS)</option>
+                <option value="MO">Missouri (MO)</option>
+                <option value="MT">Montana (MT)</option>
+                <option value="NE">Nebraska (NE)</option>
+                <option value="NV">Nevada (NV)</option>
+                <option value="NH">New Hampshire (NH)</option>
+                <option value="NY">New York (NY)</option>
+                <option value="NC">North Carolina (NC)</option>
+                <option value="ND">North Dakota (ND)</option>
+                <option value="OH">Ohio (OH)</option>
+                <option value="OK">Oklahoma (OK)</option>
+                <option value="OR">Oregon (OR)</option>
+                <option value="PA">Pennsylvania (PA)</option>
+                <option value="RI">Rhode Island (RI)</option>
+                <option value="SC">South Carolina (SC)</option>
+                <option value="SD">South Dakota (SD)</option>
+                <option value="TN">Tennessee (TN)</option>
+                <option value="TX">Texas (TX)</option>
+                <option value="UT">Utah (UT)</option>
+                <option value="VT">Vermont (VT)</option>
+                <option value="VA">Virginia (VA)</option>
+                <option value="WA">Washington (WA)</option>
+                <option value="WV">West Virginia (WV)</option>
+                <option value="WI">Wisconsin (WI)</option>
+                <option value="WY">Wyoming (WY)</option>
+              </select>
+            </div>
+            <div id="newDataButton">
+              <button type="submit" class="btn btn-outline-info btn-sm" onClick="newData()">Submit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="chartContainer">
+        <canvas id="hospitalizations" width="350" height="350"></canvas>
+      </div>
+
+      <div class="chartContainer">
+      <canvas id="hospitalizationsMargin" width="350" height="350"></canvas>
+      </div>
+
+      <div class="chartContainer">
+      <canvas id="deaths" width="350" height="350"></canvas>
+      </div>
+
+      <div class="chartContainer">
+      <canvas id="deathsMargin"width="350" height="350"></canvas>
+      </div>
+
+      <div class="row justify-content center" id="bigTable">
+        <table class="table table-small table-bordered" id="data">
+          <caption>
+            cumulative error in hospitalizations (sum of the absolute value of all margins of error): <span id="cumulativeErrorH"> </span></br>
+            average error in hospitalizations (cumulative error / number of rows): <span id="averageErrorH">  </span></br>
+            cumulative error in deaths (sum of the absolute value of all margins of error): <span id="cumulativeErrorD"> </span></br>
+            average error in deaths (cumulative error / number of rows): <span id="averageErrorD">  </span>
+          </caption>
+          <thead>
+           <tr>
+             <th colspan="1"></th>
+             <th colspan="2">Projection</th>
+             <th colspan="2">Actual</th>
+             <th colspan="2">Margin Of Error</th>
+           </tr>
+           <tr>
+             <th>Date</th>
+             <th>Hospitalizations</th>
+             <th>Deaths</th>
+             <th>Hospitalizations</th>
+             <th>Deaths</th>
+             <th>Hospitalizations</th>
+             <th>Deaths</th>
+            </tr>
+         </thead>
+         <tbody>
+          <!-- rows load here -->
+         </tbody>
+        </table>
+        <div id="download">
+          <button type="submit" class="btn btn-outline-info btn-sm" onClick="exportTableToExcel()">download excel</button>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script type="text/javascript">
+
+  let hospitalizationsChart, hospitalizationMarginsChart, deathsChart, deathsMarginChart;
+
+  function loadData(selectedCommitDate, selectedState, intervention) {
+    let projectionDate = selectedCommitDate;
+    let state = selectedState;
+
+    let projectionDates = [];
+    let projectionData = [];
+    let projectionObject = {};
+    let actualData = [];
+
+    let deathMarginsArray = [];
+    let hospitalizationsMarginsArray = [];
+
+    let dataObject = {}; // array of date object
+
+    let interventionsNames = {
+      "0": "No Action",
+      "3": "Lax Shelter-in-Place",
+      "2": "Projected",
+      "1": "Strict Shelter-in-Place"
+    }
+
+    fetch('/public/data/projections/' + projectionDate + '/' + intervention + '/' + state + '.json')
+    // fetch('/public/data/projections/03-19-2020/CA.json')
+      .then(response => response.json())
+      .then(json => {
+
+        projectionData = json.reverse();
+        for (i in projectionData) {
+          let data = json[i];
+          projectionDates.push(data.date)
+          projectionObject[data.date] = {
+            hospitalizations:data.hospitalizations,
+            death: data.death
+          }
+        }
+
+        fetch('/public/data/actual/' + state + '.json')
+          .then(response => response.json())
+          .then(json => {
+            let actualData = json.reverse().filter(data => {
+              if (projectionDates.includes(data.date)) return data
+            })
+
+            actualData.forEach(actual => {
+              dataObject[actual.date] = {
+                date: actual.date,
+                actual
+              };
+            });
+
+            projectionData.forEach(projection => {
+              if (projection.date in dataObject) {
+                dataObject[projection.date].projection = {...projection}
+              }
+            });
+
+            for (date in dataObject) {
+              let deathMargin = dataObject[date].projection.death - dataObject[date].actual.death;
+              deathMarginsArray.push(deathMargin);
+              let hospitalizationsMargin = dataObject[date].projection.hospitalizations - dataObject[date].actual.hospitalizations;
+              hospitalizationsMarginsArray.push(hospitalizationsMargin);
+
+              dataObject[date].margin = {
+                date,
+                hospitalizations: hospitalizationsMargin,
+                death: deathMargin
+              }
+            }
+
+            const margins = document.getElementById("margins");
+            let marginData = actualData.map((data,index) => {
+              return {
+                date: data.date,
+                hospitalizations: Math.round(projectionObject[data.date].hospitalizations) - data.hospitalizations,
+                death: Math.round(projectionObject[data.date].death) - data.death,
+              }
+            });
+
+            const dataTable = document.getElementById("data");
+
+            for (data in dataObject) {
+              let rowData = dataObject[data];
+              let row = dataTable.insertRow(2);
+              let cell1 = row.insertCell(0);
+              let cell2 = row.insertCell(1);
+              let cell3 = row.insertCell(2);
+              let cell4 = row.insertCell(3);
+              let cell5 = row.insertCell(4);
+              let cell6 = row.insertCell(5);
+              let cell7 = row.insertCell(6);
+
+              cell1.innerHTML = rowData.date;
+              cell2.innerHTML = rowData.projection.hospitalizations;
+              cell3.innerHTML = rowData.projection.death;
+              cell4.innerHTML = rowData.actual.hospitalizations;
+              cell5.innerHTML = rowData.actual.death;
+              cell6.innerHTML = rowData.margin.hospitalizations;
+              cell7.innerHTML = rowData.margin.death;
+            }
+
+            // console.log(dataObject);
+            let dates = [];
+            let projectionHospitalizations = [];
+            let projectionDeaths = [];
+            let actualHospitalizations = [];
+            let actualDeaths = [];
+            let marginHospitalizations = [];
+            let marginDeaths = [];
+
+            for (date in dataObject) {
+              let row = dataObject[date];
+              dates.push(row.date);
+              projectionHospitalizations.push(row.projection.hospitalizations);
+              projectionDeaths.push(row.projection.death);
+              actualHospitalizations.push(row.actual.hospitalizations);
+              actualDeaths.push(row.actual.death);
+              marginHospitalizations.push(row.margin.hospitalizations);
+              marginDeaths.push(row.margin.death);
+            }
+
+            dates.reverse();
+            projectionHospitalizations.reverse();
+            projectionDeaths.reverse();
+            actualHospitalizations.reverse();
+            actualDeaths.reverse();
+            marginHospitalizations.reverse();
+            marginDeaths.reverse();
+
+            function makeChart(id, dates, projectionData, labels, actualData) {
+              let ctx = document.getElementById(id).getContext('2d');
+              let chart = new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: dates,
+                    datasets: [
+                      {
+                        label: labels.projectionLabel || '',
+                        backgroundColor: labels.color || 'rgb(94,204,132)',
+                        borderColor: labels.color || 'rgb(94,204,132)',
+                        data: projectionData,
+                        fill: false
+                      },
+                      {
+                        label: labels.actualLabel || '',
+                        backgroundColor: 'black',
+                        borderColor: 'black',
+                        data: actualData || [],
+                        fill: false
+                      }
+                    ]
+                  },
+                  options: {
+                    responsive: false,
+                    title: {
+                      display: true,
+                      text: [modelNameObject[selectedCommitDate], interventionsNames[intervention], labels.title] || ""
+                    },
+
+                    scales: {
+                        xAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'date'
+                            },
+                            // ticks: {
+                            //     autoSkip: true,
+                            //     minRotation: 30,
+                            //     fontSize: 10
+                            // }
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: labels.yAxis || ''
+                            }
+                        }]
+                    },
+                    legend: {
+                        display: labels.legend
+                    },
+                  }
+
+
+              });
+              return chart;
+            }
+
+            hospitalizationsChart = makeChart('hospitalizations', dates, projectionHospitalizations, {
+              projectionLabel: 'Projected',
+              actualLabel: "Actual",
+              title: "Hospitalizations (daily)",
+              yAxis: 'hospitalizations (#)',
+              legend: true
+            }, actualHospitalizations)
+
+            hospitalizationMarginsChart = makeChart('hospitalizationsMargin', dates, marginHospitalizations, {
+              title: 'Hospitalizations (daily) margin of error',
+              yAxis: 'hospitalizations (#)',
+              legend: false,
+              color: 'red'
+            })
+
+            deathsChart = makeChart('deaths', dates, projectionDeaths, {
+              projectionLabel: 'Projected',
+              actualLabel: "Actual",
+              title: 'Deaths (cumulative)',
+              yAxis: 'deaths (#)',
+              legend: true
+            }, actualDeaths)
+
+            deathsMarginChart = makeChart('deathsMargin', dates, marginDeaths, {
+              title: 'Deaths (cumulative) margin of error',
+              yAxis: 'deaths (#)',
+              legend: false,
+              color: 'red'
+            });
+
+            let cumulativeErrorD = deathMarginsArray.reduce((a,b) => Math.abs(a) + Math.abs(b))
+            let averageErrorD = cumulativeErrorD/deathMarginsArray.length
+            let cumulativeErrorH = hospitalizationsMarginsArray.reduce((a,b) => Math.abs(a)+Math.abs(b))
+            let averageErrorH = cumulativeErrorH/hospitalizationsMarginsArray.length
+
+            let a = document.getElementById('cumulativeErrorD').innerHTML = cumulativeErrorD;
+            let b = document.getElementById('averageErrorD').innerHTML = averageErrorD;
+            let c = document.getElementById('cumulativeErrorH').innerHTML = cumulativeErrorH;
+            let d = document.getElementById('averageErrorH').innerHTML = averageErrorH;
+          });
+      });
+    }
+
+    let list = document.getElementById('commitDate');
+    for (model in modelNameObject) {
+      let option = document.createElement('option');
+      option.innerHTML = modelNameObject[model]
+      option.value = model
+      list.append(option);
+    }
+
+    // loadData("06-01-2020", "US", 2);
+    loadData("06-06-2020", "CA", 2);
+
+    function newData () {
+      var selectedCommitDate = document.getElementById('commitDate').value;
+      var selectedState = document.getElementById('state').value;
+      var intervention = document.getElementById('intervention').value;
+
+      var rowLength = document.getElementById("data").rows.length;
+      for (let i = 2; i < rowLength; i++) {
+        document.getElementById('data').deleteRow(2)
+      }
+
+      document.getElementById('cumulativeErrorD').innerHTML = "";
+      document.getElementById('averageErrorD').innerHTML = "";
+      document.getElementById('cumulativeErrorH').innerHTML = "";
+      document.getElementById('averageErrorH').innerHTML = "";
+
+      hospitalizationsChart.destroy()
+      hospitalizationMarginsChart.destroy()
+      deathsChart.destroy()
+      deathsMarginChart.destroy()
+
+      loadData(selectedCommitDate, selectedState, intervention);
+    }
+
+
+    function exportTableToExcel(tableID = "data"){
+        var selectedCommitDate = document.getElementById('commitDate').value;
+        var selectedState = document.getElementById('state').value;
+        var intervention = document.getElementById('intervention').value;
+
+        let fileName = selectedCommitDate + " " + selectedState + " (" + intervention + ")";
+
+        var downloadLink;
+        var dataType = 'application/vnd.ms-excel';
+        var tableSelect = document.getElementById(tableID);
+        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+        // Specify file name
+        fileName = fileName?fileName+'.xls':'excel_data.xls';
+
+        // Create download link element
+        downloadLink = document.createElement("a");
+
+        document.body.appendChild(downloadLink);
+
+        if(navigator.msSaveOrOpenBlob){
+            var blob = new Blob(['\ufeff', tableHTML], {
+                type: dataType
+            });
+            navigator.msSaveOrOpenBlob( blob, fileName);
+        }else{
+            // Create a link to the file
+            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+            // Setting the file name
+            downloadLink.download = fileName;
+
+            //triggering the function
+            downloadLink.click();
+        }
+    }
+
+</script>
+</html>

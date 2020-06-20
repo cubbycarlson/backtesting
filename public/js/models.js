@@ -34,7 +34,7 @@ let modelsRaw = [
     hasHospitalizations: true,
     countryLevel: true,
     stateLevel: true,
-    // countyLevel: true
+    countyLevel: true
   },
 
   { name: "ihme",
@@ -51,7 +51,8 @@ let modelsRaw = [
       ],
     hasHospitalizations: true,
     countryLevel: true,
-    stateLevel: true
+    stateLevel: true,
+    countyLevel: false
   },
 
 
@@ -64,7 +65,8 @@ let modelsRaw = [
     suffix: "-UCLA-SuEIR.csv",
     hasHospitalizations: false,
     countryLevel: true,
-    stateLevel: true
+    stateLevel: true,
+    countyLevel: false
   },
 
   { name: 'mit',
@@ -76,7 +78,8 @@ let modelsRaw = [
     suffix: "-MIT_CovidAnalytics-DELPHI.csv",
     hasHospitalizations: false,
     countryLevel: true,
-    stateLevel: true
+    stateLevel: true,
+    countyLevel: false
   },
 
   { name: 'ut',
@@ -88,7 +91,8 @@ let modelsRaw = [
     suffix: "-UT-Mobility.csv",
     hasHospitalizations: false,
     countryLevel: true,
-    stateLevel: true
+    stateLevel: true,
+    countyLevel: false
   }
 ]
 
