@@ -8,7 +8,8 @@ fs.mkdirSync(__dirname + "/public/data/IHME", { recursive: true }, (err) => {
   if (err) throw err
 })
 
-let ihmeDates = ["03-25-2020", "03-31-2020", "04-08-2020", "04-13-2020", "05-20-2020", "05-29-2020"];
+let ihmeDates = ["06-06-2020"];
+// let ihmeDates = ["03-25-2020", "03-31-2020", "04-08-2020", "04-13-2020", "05-20-2020", "05-29-2020", "06-06-2020"];
 // let ihmeDates = ["04-08-2020", "04-13-2020", "05-20-2020", "05-29-2020"];
 // 03-25-2020 has "location_name" onstead of "location", and "date_reported" instead of "date"
 
