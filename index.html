@@ -6,6 +6,10 @@
 
     <script src="./public/js/states.js"></script>
     <script src="./public/js/models.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./public/css/index.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
 
     <style>
       div {
@@ -15,6 +19,10 @@
   </head>
 
   <body>
+    <div id="headerDiv">
+      <a href="https:///www.covidactnow.org"><img id="headerImg" src="https://covidactnow.org/static/media/can_logo.0ac0983b.png"/></a>
+      <h1 id="header">Covid Act Now Backtesting Tool</h1>
+    </div>
     <form onsubmit="return false">
       <label for="states"></label>
       <select name="states" id="states">
@@ -23,58 +31,122 @@
       </select>
 
       <label for="counties"></label>
-      <select name="counties" id="counties">
+      <select name="counties" disabled id="counties">
         <option value="" selected disabled hidden>counties</option>
         <!-- options go here -->
       </select>
 
       <label for="models"></label>
-      <select disabled name="models" id="models">
+      <select id="models" disabled name="models" id="models">
         <option value="" selected disabled hidden>models</option>
         <!-- options go here -->
       </select>
 
       <label for="intervention"></label>
-      <select name="intervention" id="intervention" disabled>
+      <select id="intervention" name="intervention" id="intervention" disabled>
         <option value="" selected disabled hidden>intervention</option>
         <!-- options go here -->
       </select>
 
-      <button id="submitButton" disabled onClick="addData()">submit</button>
+      <button class="btn" id="submitButton" disabled onClick="addData()">submit</button>
     </form>
 
-    <ul id="legend">
-      <lh>LEGEND: NOW SHOWING THE FOLLOWING MODELS FOR <span id="location">NONE</span>:</lh>
-      <!-- models go here -->
-      <!-- <li>lol</li> -->
-    </ul>
+    <div id="menu-outer">
+      <h3 id="legendHeader">LEGEND: NOW SHOWING THE FOLLOWING MODELS FOR <span id="location"><i>NONE</i></span>:</h3>
+      <div class="table">
+        <ul id="legend">
+          <!-- models go here -->
+        </ul>
+      </div>
+    </div>
 
-    </br>
-    <button id="clearButton" onClick="emptyCharts()">clear all</button>
-    </br>
-    </br>
+    <button class="btn" id="clearButton" onClick="emptyCharts()">clear all</button>
 
-
-    <div class="chartsContainer">
-      <div class="chartContainer" width="800">
-        <div class="chartDeathContainer">
-          <canvas id="deathChart" width="500" height="500"></canvas>
-        </div>
-        <div class="chartHospitalizationsContainer">
-          <canvas id="hospitalizationsChart" width="500" height="500"></canvas>
-        </div>
+    <div class="chartContainer" width="800">
+      <div class="canvasContainer" id="chartHospitalizationsContainer">
+        <canvas id="hospitalizationsChart" width="450" height="450"></canvas>
+      </div>
+      <div class="canvasContainer" id="chartDeathContainer">
+        <canvas id="deathChart" width="450" height="450"></canvas>
       </div>
     </div>
 
   </body>
 
   <script>
+
+    Chart.defaults.global.defaultFontFamily = 'Source Code Pro';
+    let colors = [
+      "#000000", // BLACK
+      "#00d07d", // GREEN
+      "#ff6b2f", // YELLOW
+      "#d317dc", // MAGENTA
+      "#008f6c", // ORANGE
+      "#60bae1", // BLUE
+      "#ff9c00", // GOLD
+      "#e12638", // RED
+      "#8800ff", // PURPLE
+      // "f5f5f5", // LIGHT GREY
+      // "ffffff" // WHITE
+    ];
+    let colorIndex = 0;
+    function nextColor() {
+      colorIndex++;
+      if (colorIndex >= colors.length) {
+        colorIndex = 0
+      }
+    }
+
     let statesSelect = document.getElementById("states");
     let countiesSelect = document.getElementById("counties");
     let modelsSelect = document.getElementById("models");
     let interventionSelect = document.getElementById("intervention");
     let submitButton = document.getElementById("submitButton");
-    let interventions = ["NONE", "LAX", "PREDICTED", "STRICT"]
+    let interventions = ["NONE", "LAX", "PREDICTED", "STRICT"];
+
+    let canApiInterventions = [
+      "NO_INTERVENTION",
+      "WEAK_INTERVENTION",
+      "OBSERVED_INTERVENTION",
+      "STRONG_INTERVENTION"
+    ]
+
+    function addLeadingZero(fipsString) {
+      if (fipsString.length == 4) return "0" + fipsString
+      return fipsString
+    }
+
+    function parseDate (strDate) {
+      // strDate is format "YYYY-MM-DD", return "MM-DD-YYYY"
+      let str = strDate.toString();
+      let year = str.slice(0,4);
+      let month = str.slice(5,7);
+      let day = str.slice(8,10);
+      return month + "-" + day + "-" + year
+    }
+
+    function convertDates (dates) {
+      return dates.map(date => {
+        let month = date.substring(0,2)
+        let months = {
+          "01": "Jan",
+          "02": "Feb",
+          "03": "Mar",
+          "04": "Apr",
+          "05": "May",
+          "06": "Jun",
+          "07": "Jul",
+          "08": "Aug",
+          "09": "Sep",
+          "10": "Oct",
+          "11": "Nov",
+          "12": "Dec"
+        }
+        return months[month] + " " + date.substring(3,5)
+      })
+    }
+
+    let trueDates = [];
 
 
     var stateOption = document.createElement("OPTION");
@@ -92,6 +164,7 @@
     let fipsUrl = "https://raw.githubusercontent.com/kjhealy/fips-codes/master/state_and_county_fips_master.csv"
 
     function removeOptions(selectElement) {
+
        var i, L = selectElement.options.length - 1;
        for(i = L; i >= 1; i--) {
           selectElement.remove(i);
@@ -266,7 +339,17 @@
           responsive: false,
           title: {
             display: true,
-            text: titleText
+            text: titleText,
+            // fontSize: "20px",
+            fontSize: 15,
+            fontColor: "#000000",
+            fontStyle: "thin"
+          },
+          elements: {
+              point:{
+                  radius: 0,
+                  hitRadius: 10
+              }
           },
           scales: {
               xAxes: [{
@@ -324,16 +407,18 @@
     let listIndex = 1;
 
     function addData() {
-      console.log(
-        "state:",
-        statesSelect.value, // state abbreviation or "US"
-        "fips:",
-        countiesSelect.value, // fips or -1 for (all)
-        "model:",
-        modelsToShow[modelsSelect.value], // model object
-        "intervention:",
-        interventionSelect.value // index value
-      )
+      // console.log(
+      //   "state:",
+      //   statesSelect.value, // state abbreviation or "US"
+      //   "fips:",
+      //   countiesSelect.value, // fips or -1 for (all)
+      //   "model:",
+      //   modelsToShow[modelsSelect.value], // model object
+      //   "intervention:",
+      //   interventionSelect.value // index value
+      // )
+      statesSelect.disabled = true;
+      countiesSelect.disabled = true;
 
       if (firstSubmission) {
         firstSubmission = false;
@@ -342,18 +427,19 @@
           pullData("actual", null, "US", null)
             .then(act => {
               let datesArray = act[0].map(row => row.date)
+              trueDates = datesArray;
               let deathArray = act[0].map(row => row.death)
               let hospArray = act[0].map(row => row.hospitalizations)
 
               death.options.title.text = "United States Deaths (Total)";
               hospitalizations.options.title.text = "United States Hospitalizations (Daily)"
 
-              death.data.labels = datesArray;
-              hospitalizations.data.labels = datesArray;
+              death.data.labels = convertDates(datesArray);
+              hospitalizations.data.labels = convertDates(datesArray);
               death.data.datasets.push({
                 label: "Actual",
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: deathArray,
                 fill: false,
                 spanGaps: true
@@ -361,22 +447,24 @@
               death.update();
               hospitalizations.data.datasets.push({
                 label: "Actual",
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: hospArray,
                 fill: false,
                 spanGaps: true
               });
               hospitalizations.update();
 
+              nextColor();
+
               let model = modelsToShow[modelsSelect.value]
               pullData(model.folderName, model.commitDate, "US", interventionSelect.value)
                 .then(data => {
 
-                  let deathArray = new Array(death.data.labels.length);
-                  let hospArray = new Array(hospitalizations.data.labels.length);
+                  let deathArray = new Array(trueDates.length);
+                  let hospArray = new Array(trueDates.length);
 
-                  death.data.labels.forEach((label, index) => {
+                  trueDates.forEach((label, index) => {
                     data[0].forEach(row => {
                       if (row.date == label && row.date >= model.commitDate) {
                         deathArray[index] = Math.round(row.death);
@@ -385,14 +473,15 @@
                     })
                   })
 
-                  let selectedIntervention = interventions[interventionSelect.value];
-                  if (selectedIntervention == undefined) selectedIntervention = ""
-                  let label = model.name + " " + model.commitDate + " " + selectedIntervention;
+                  let interventionText = interventions[interventionSelect.value]
+                  let selectedIntervention = " " + interventionText;
+                  if (interventionText == undefined) selectedIntervention = ""
+                  let label = model.name + " " + model.commitDate + selectedIntervention;
 
                   death.data.datasets.push({
                     label: label,
-                    backgroundColor: "black",
-                    borderColor: "black",
+                    backgroundColor: colors[colorIndex],
+                    borderColor: colors[colorIndex],
                     data: deathArray,
                     fill: false,
                     spanGaps: true
@@ -401,13 +490,14 @@
 
                   hospitalizations.data.datasets.push({
                     label: label,
-                    backgroundColor: "black",
-                    borderColor: "black",
+                    backgroundColor: colors[colorIndex],
+                    borderColor: colors[colorIndex],
                     data: hospArray,
                     fill: false,
                     spanGaps: true
                   });
                   hospitalizations.update();
+                  nextColor();
                   addModelToLegend(label, listIndex)
 
                 })
@@ -422,18 +512,19 @@
           pullData("actual", null, state, null)
             .then(act => {
               let datesArray = act[0].map(row => row.date)
+              trueDates = datesArray;
               let deathArray = act[0].map(row => row.death)
               let hospArray = act[0].map(row => row.hospitalizations)
 
               death.options.title.text = states[state] + " Deaths (Total)";
               hospitalizations.options.title.text = states[state] + " Hospitalizations (Daily)"
 
-              death.data.labels = datesArray;
-              hospitalizations.data.labels = datesArray;
+              death.data.labels = convertDates(datesArray);
+              hospitalizations.data.labels = convertDates(datesArray);
               death.data.datasets.push({
                 label: "Actual",
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: deathArray,
                 fill: false,
                 spanGaps: true
@@ -441,23 +532,24 @@
               death.update();
               hospitalizations.data.datasets.push({
                 label: "Actual",
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: hospArray,
                 fill: false,
                 spanGaps: true
               });
               hospitalizations.update();
+              nextColor();
 
               let model = modelsToShow[modelsSelect.value]
 
               pullData(model.folderName, model.commitDate, state, interventionSelect.value)
                 .then(data => {
 
-                  let deathArray = new Array(death.data.labels.length);
-                  let hospArray = new Array(hospitalizations.data.labels.length);
+                  let deathArray = new Array(trueDates.length);
+                  let hospArray = new Array(trueDates.length);
 
-                  death.data.labels.forEach((label, index) => {
+                  trueDates.forEach((label, index) => {
                     data[0].forEach(row => {
                       if (row.date == label && row.date >= model.commitDate) {
                         deathArray[index] = Math.round(row.death);
@@ -466,14 +558,15 @@
                     })
                   })
 
-                  let selectedIntervention = interventions[interventionSelect.value];
-                  if (selectedIntervention == undefined) selectedIntervention = ""
-                  let label = model.name + " " + model.commitDate + " " + selectedIntervention;
+                  let interventionText = interventions[interventionSelect.value]
+                  let selectedIntervention = " " + interventionText;
+                  if (interventionText == undefined) selectedIntervention = ""
+                  let label = model.name + " " + model.commitDate + selectedIntervention;
 
                   death.data.datasets.push({
                     label: label,
-                    backgroundColor: "black",
-                    borderColor: "black",
+                    backgroundColor: colors[colorIndex],
+                    borderColor: colors[colorIndex],
                     data: deathArray,
                     fill: false,
                     spanGaps: true
@@ -482,14 +575,15 @@
 
                   hospitalizations.data.datasets.push({
                     label: label,
-                    backgroundColor: "black",
-                    borderColor: "black",
+                    backgroundColor: colors[colorIndex],
+                    borderColor: colors[colorIndex],
                     data: hospArray,
                     fill: false,
                     spanGaps: true
                   });
                   hospitalizations.update();
 
+                  nextColor();
                   addModelToLegend(label, listIndex)
 
 
@@ -512,19 +606,20 @@
           pullData("actual/fips", null, null, null, fipsSelected)
             .then(act => {
               let datesArray = act[0].map(row => row.date)
+              trueDates = datesArray;
               let deathArray = act[0].map(row => row.death)
               // let hospArray = act[0].map(row => row.cases)
               let hospArray = []
 
-              death.options.title.text = countyName + " Deaths (Total)";
-              hospitalizations.options.title.text = countyName + " Hospitalizations (Daily)"
+              death.options.title.text = countyName + ", " + states[statesSelect.value] + " Deaths (Total)";
+              hospitalizations.options.title.text = countyName + ", " + states[statesSelect.value] + " Hospitalizations (Daily)"
 
-              death.data.labels = datesArray;
-              hospitalizations.data.labels = datesArray;
+              death.data.labels = convertDates(datesArray);
+              hospitalizations.data.labels = convertDates(datesArray);
               death.data.datasets.push({
                 label: "Actual",
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: deathArray,
                 fill: false,
                 spanGaps: true
@@ -532,86 +627,67 @@
               death.update();
               hospitalizations.data.datasets.push({
                 label: "Actual",
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: hospArray,
                 fill: false,
                 spanGaps: true
               });
               hospitalizations.update();
+              nextColor();
 
               let model = modelsToShow[modelsSelect.value]
 
-              fetch("https://data.covidactnow.org/latest/us/counties.WEAK_INTERVENTION.timeseries.csv")
-                .then(data => data.text())
-                .then(csv => {
-                  console.log(csv)
-                })
+              fetch("https://data.covidactnow.org/latest/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
+                .then(data => data.json())
+                .then(json => {
+                  let projectionArray = json.actualsTimeseries.map(row => {
+                    return {
+                      date: parseDate(row.date),
+                      death: row.cumulativeDeaths || 0
+                    }
+                  })
+                  deathArray = new Array(trueDates.length);
+                  hospArray = new Array(trueDates.length);
 
-              // pullData(model.folderName, model.commitDate, state, interventionSelect.value)
-              //   .then(data => {
-              //
-              //     let deathArray = new Array(death.data.labels.length);
-              //     let hospArray = new Array(hospitalizations.data.labels.length);
-              //
-              //     death.data.labels.forEach((label, index) => {
-              //       data[0].forEach(row => {
-              //         if (row.date == label && row.date >= model.commitDate) {
-              //           deathArray[index] = Math.round(row.death);
-              //           hospArray[index] = Math.round(row.hospitalizations);
-              //         }
-              //       })
-              //     })
-              //
-              //     let selectedIntervention = interventions[interventionSelect.value];
-              //     if (selectedIntervention == undefined) selectedIntervention = ""
-              //     let label = model.name + " " + model.commitDate + " " + selectedIntervention;
-              //
-              //     death.data.datasets.push({
-              //       label: label,
-              //       backgroundColor: "black",
-              //       borderColor: "black",
-              //       data: deathArray,
-              //       fill: false,
-              //       spanGaps: true
-              //     });
-              //     death.update();
-              //
-              //     hospitalizations.data.datasets.push({
-              //       label: label,
-              //       backgroundColor: "black",
-              //       borderColor: "black",
-              //       data: hospArray,
-              //       fill: false,
-              //       spanGaps: true
-              //     });
-              //     hospitalizations.update();
-              //
-              //     addModelToLegend(label, listIndex)
-              //
-              //
-              //   })
+                  trueDates.forEach((label, index) => {
+                    projectionArray.forEach(row => {
+                      if (row.date == label && row.date >= model.commitDate) {
+                        deathArray[index] = Math.round(row.death);
+                        hospArray[index] = Math.round(row.hospitalizations);
+                      }
+                    })
+                  })
+
+                  let interventionText = interventions[interventionSelect.value]
+                  let selectedIntervention = " " + interventionText;
+                  if (interventionText == undefined) selectedIntervention = ""
+                  let label = model.name + " " + model.commitDate + selectedIntervention;
+
+                  death.data.datasets.push({
+                    label: label,
+                    backgroundColor: colors[colorIndex],
+                    borderColor: colors[colorIndex],
+                    data: deathArray,
+                    fill: false,
+                    spanGaps: true
+                  });
+                  death.update();
+
+                  hospitalizations.data.datasets.push({
+                    label: label,
+                    backgroundColor: colors[colorIndex],
+                    borderColor: colors[colorIndex],
+                    data: hospArray,
+                    fill: false,
+                    spanGaps: true
+                  });
+                  hospitalizations.update();
+                  nextColor();
+
+                  addModelToLegend(label, listIndex)
+                }).catch(err => console.log(err))
             }).catch(err => console.log(err))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
       } else {
         firstSubmission = false;
@@ -619,10 +695,10 @@
             let model = modelsToShow[modelsSelect.value]
             pullData(model.folderName, model.commitDate, "US", interventionSelect.value)
               .then(data => {
-                let deathArray = new Array(death.data.labels.length);
-                let hospArray = new Array(hospitalizations.data.labels.length);
+                let deathArray = new Array(trueDates.length);
+                let hospArray = new Array(trueDates.length);
 
-                death.data.labels.forEach((label, index) => {
+                trueDates.forEach((label, index) => {
                   data[0].forEach(row => {
                     if (row.date == label && row.date >= model.commitDate) {
                       deathArray[index] = Math.round(row.death);
@@ -631,14 +707,15 @@
                   })
                 })
 
-                let selectedIntervention = interventions[interventionSelect.value];
-                if (selectedIntervention == undefined) selectedIntervention = "";
-                let label = model.name + " " + model.commitDate + " " + selectedIntervention;
+                let interventionText = interventions[interventionSelect.value]
+                let selectedIntervention = " " + interventionText;
+                if (interventionText == undefined) selectedIntervention = ""
+                let label = model.name + " " + model.commitDate + selectedIntervention;
 
                 death.data.datasets.push({
                   label: label,
-                  backgroundColor: "black",
-                  borderColor: "black",
+                  backgroundColor: colors[colorIndex],
+                  borderColor: colors[colorIndex],
                   data: deathArray,
                   fill: false,
                   spanGaps: true
@@ -647,13 +724,14 @@
 
                 hospitalizations.data.datasets.push({
                   label: label,
-                  backgroundColor: "black",
-                  borderColor: "black",
+                  backgroundColor: colors[colorIndex],
+                  borderColor: colors[colorIndex],
                   data: hospArray,
                   fill: false,
                   spanGaps: true
                 });
                 hospitalizations.update();
+                nextColor();
                 addModelToLegend(label, listIndex)
 
               })
@@ -666,10 +744,10 @@
           pullData(model.folderName, model.commitDate, state, interventionSelect.value)
             .then(data => {
 
-              let deathArray = new Array(death.data.labels.length);
-              let hospArray = new Array(hospitalizations.data.labels.length);
+              let deathArray = new Array(trueDates.length);
+              let hospArray = new Array(trueDates.length);
 
-              death.data.labels.forEach((label, index) => {
+              trueDates.forEach((label, index) => {
                 data[0].forEach(row => {
                   if (row.date == label && row.date >= model.commitDate) {
                     deathArray[index] = Math.round(row.death);
@@ -678,14 +756,15 @@
                 })
               })
 
-              let selectedIntervention = interventions[interventionSelect.value];
-              if (selectedIntervention == undefined) selectedIntervention = "";
-              let label = model.name + " " + model.commitDate + " " + selectedIntervention;
+              let interventionText = interventions[interventionSelect.value]
+              let selectedIntervention = " " + interventionText;
+              if (interventionText == undefined) selectedIntervention = ""
+              let label = model.name + " " + model.commitDate + selectedIntervention;
 
               death.data.datasets.push({
                 label: label,
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: deathArray,
                 fill: false,
                 spanGaps: true
@@ -694,13 +773,14 @@
 
               hospitalizations.data.datasets.push({
                 label: label,
-                backgroundColor: "black",
-                borderColor: "black",
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
                 data: hospArray,
                 fill: false,
                 spanGaps: true
               });
               hospitalizations.update();
+              nextColor();
               addModelToLegend(label, listIndex)
 
             })
@@ -717,23 +797,73 @@
 
           // load county data onto graph here (not first submission)
 
+          let model = modelsToShow[modelsSelect.value]
+
+          fetch("https://data.covidactnow.org/latest/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
+            .then(data => data.json())
+            .then(json => {
+              let projectionArray = json.actualsTimeseries.map(row => {
+                return {
+                  date: parseDate(row.date),
+                  death: row.cumulativeDeaths || 0
+                }
+              })
+              let deathArray = new Array(trueDates.length);
+              let hospArray = new Array(trueDates.length);
+
+              trueDates.forEach((label, index) => {
+                projectionArray.forEach(row => {
+                  if (row.date == label && row.date >= model.commitDate) {
+                    deathArray[index] = Math.round(row.death);
+                    hospArray[index] = Math.round(row.hospitalizations);
+                  }
+                })
+              })
+
+              let interventionText = interventions[interventionSelect.value]
+              let selectedIntervention = " " + interventionText;
+              if (interventionText == undefined) selectedIntervention = ""
+              let label = model.name + " " + model.commitDate + selectedIntervention;
+
+              death.data.datasets.push({
+                label: label,
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
+                data: deathArray,
+                fill: false,
+                spanGaps: true
+              });
+              death.update();
+
+              hospitalizations.data.datasets.push({
+                label: label,
+                backgroundColor: colors[colorIndex],
+                borderColor: colors[colorIndex],
+                data: hospArray,
+                fill: false,
+                spanGaps: true
+              });
+              hospitalizations.update();
+              nextColor();
+
+              addModelToLegend(label, listIndex)
+            }).catch(err => console.log(err))
         }
-
       }
-
     }
 
-    function addModelToLegend(name, index) {
+    function addModelToLegend(name, index, colors) {
       var ul = document.getElementById("legend");
       var li = document.createElement("li");
-      li.appendChild(document.createTextNode(name));
+      let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<i class="material-icons">keyboard_arrow_down</i>'
+      li.innerHTML = liHtml;
+      // li.appendChild(document.createTextNode(name));
       li.setAttribute("id", index); // added line
       ul.appendChild(li);
       listIndex++
     }
 
     function emptyChart(chart) {
-      // TO DO reset selects & buttons here too!
       firstSubmission = true;
       if (chart == death) {
         chart.options.title.text = "Deaths (Total)";
@@ -744,14 +874,58 @@
       chart.data.labels = ['Mar 01', 'Apr 01', 'May 01', 'Jun 01'];
       chart.data.datasets = [];
       chart.update();
-
-      document.getElementById("location").innerHTML = "NONE";
     }
 
     function emptyCharts() {
       emptyChart(death)
       emptyChart(hospitalizations)
+
+      statesSelect.disabled = false;
+      countiesSelect.disabled = true;
+      modelsSelect.disabled = true;
+      interventionSelect.disabled = true;
+      submitButton.disabled = true;
+
+      // TO DO DELETE LIST ELEMENTS TOO!
+
+      document.getElementById("location").innerHTML = "NONE";
+
+      let legend = document.getElementById("legend");
+      while(legend.firstChild){
+        legend.removeChild(legend.firstChild);
+      }
+
+      colorIndex = 0;
+
+
+
     }
+
+
+
+    function check(checkbox) {
+      let displayGraph = checkbox.checked;
+      let li = checkbox.parentNode
+      let ul = li.parentNode
+      let ulList = Array.from(ul.children)
+      let checkIndex = ulList.indexOf(li) + 1;
+
+      death.data.datasets.forEach((ds, index) => {
+        if (index == checkIndex) {
+          ds.hidden = !ds.hidden
+        }
+      })
+      death.update();
+
+      hospitalizations.data.datasets.forEach((ds, index) => {
+        if (index == checkIndex) {
+          ds.hidden = !ds.hidden
+        }
+      })
+      hospitalizations.update();
+
+    }
+
 
   </script>
 </html>
