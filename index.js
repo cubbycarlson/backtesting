@@ -107,6 +107,11 @@ app.get('/test', (req, res) => {
   res.sendFile(path.join(__dirname + '/test.html'));
 });
 
+app.get("/tooltip", (req,res) => {
+  res.sendFile(path.join(__dirname + '/tooltip.html'));
+
+})
+
 
 app.listen(process.env.PORT || 9999, () => {
   console.log("listening...");
