@@ -102,13 +102,13 @@
     let modelsSelect = document.getElementById("models");
     let interventionSelect = document.getElementById("intervention");
     let submitButton = document.getElementById("submitButton");
-    let interventions = ["NONE", "LAX", "PREDICTED", "STRICT"];
+    let interventions = ["NONE", "STRICT", "PREDICTED", "LAX"];
 
     let canApiInterventions = [
       "NO_INTERVENTION",
-      "WEAK_INTERVENTION",
+      "STRONG_INTERVENTION",
       "OBSERVED_INTERVENTION",
-      "STRONG_INTERVENTION"
+      "WEAK_INTERVENTION"
     ]
 
     function addLeadingZero(fipsString) {
