@@ -51,7 +51,6 @@ function populateUsaData() {
     }
 
     for (let commit in snapShotDates) {
-      console.log(commit);
       usa[commit] = {};
       let json = [];
       stateAbbreviations.forEach(state => {
@@ -187,6 +186,8 @@ function populateUsaDataActual () {
     }
     usaArray.push(row);
   }
+
+  console.log(usaArray)
 
   fs.writeFileSync(__dirname + '/public/data/actual/US.json', JSON.stringify(usaArray), err => {
     console.log(err);

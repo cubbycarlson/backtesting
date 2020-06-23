@@ -79,7 +79,7 @@ app.get("/repop/new", (req, res) => {
 app.get('/repop/usa', (req, res) => {
   console.log("request at /repopUSA");
   populateUsaData.populateUsaData();
-  populateUsaData.populateUsaDataActual();
+  // populateUsaData.populateUsaDataActual();
 
   // res.redirect('/')
   res.send('repop usa!');

@@ -411,10 +411,13 @@
     let hospitalizations = new Chart(hospitalizationsChart, chartDefaults("Hospitalizations (Daily)"))
 
     function getJson(folderName, commit, state, intervention, fips = null) {
+      console.log(folderName, commit)
       let url = '/public/data/' + folderName + "/" + commit + '/' + state + '.json'
       if (folderName == "projections") url = '/public/data/' + folderName + "/" + commit + '/' + intervention + '/' + state  + '.json'
       if (folderName == "actual") url = '/public/data/actual/' + state  + '.json'
       if (folderName == "actual/fips") url = '/public/data/actual/fips/' + fips  + '.json' // state is
+      // if (folderName == "CDC" && commit == "r--high") url = "/public/data/cdc/higher/" + state + ".json";
+      // if (folderName == "CDC" && commit == "--lowe") url = "/public/data/cdc/lower/" + state + ".json";
 
       console.log("fetching", url)
       return fetch(url).then(data => data.json())
@@ -571,6 +574,7 @@
                   let hospArray = new Array(trueDates.length);
 
                   trueDates.forEach((label, index) => {
+                    console.log(label);
                     data[0].forEach(row => {
                       if (row.date == label && row.date >= model.commitDate) {
                         deathArray[index] = Math.round(row.death);
@@ -578,6 +582,8 @@
                       }
                     })
                   })
+
+                  console.log(deathArray)
 
                   let interventionText = interventions[interventionSelect.value]
                   let selectedIntervention = " " + interventionText;
@@ -1014,7 +1020,7 @@
           let valueTitles = [title + ": ", "Margin of Error: ", "Cumulative Margin of Error: "]
           let values = [value]; // index 0 is actual #
           values[1] = value - actuals[dataIndex] || 0; // index 1 is MOE of that point
-          values[2] = cumulativeDataset[dataIndex] - cumulativeActuals[dataIndex] || 0; // index 2 is MOE cumulative
+          // values[2] = cumulativeDataset[dataIndex] - cumulativeActuals[dataIndex] || 0; // index 2 is MOE cumulative
 
           values.forEach(function(value, index) {
               innerHtml +=

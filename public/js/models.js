@@ -29,7 +29,15 @@ let modelsRaw = [
       "06-01-2020",
       "06-04-2020",
       "06-05-2020",
-      "06-06-2020"
+      "06-06-2020",
+      "06-09-2020",
+      "06-11-2020",
+      "06-12-2020",
+      "06-15-2020",
+      "06-18-2020",
+      "06-19-2020",
+      "06-20-2020",
+      "06-22-2020"
       ],
     hasHospitalizations: true,
     countryLevel: true,
@@ -93,7 +101,20 @@ let modelsRaw = [
     countryLevel: true,
     stateLevel: true,
     countyLevel: false
-  }
+  },
+  // {
+  //   name: 'cdc',
+  //   folderName: "CDC",
+  //   displayName: "CDC",
+  //   hasSubFolders: false,
+  //   // baseUrl: prefix + "/UT-Mobility",
+  //   dates: ["higher", "lower"], // need a workaround for this issue
+  //   // suffix: "-UT-Mobility.csv",
+  //   hasHospitalizations: false,
+  //   countryLevel: true,
+  //   stateLevel: true,
+  //   countyLevel: false
+  // }
 ]
 
 function rearrangeDate(strDate) {
