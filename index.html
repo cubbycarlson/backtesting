@@ -891,16 +891,17 @@
     }
 
     function emptyChart(chart) {
-      firstSubmission = true;
-      if (chart == death) {
-        chart.options.title.text = "Deaths (Total)";
-      } else if (chart == hospitalizations) {
-        chart.options.title.text = "Hospitalizations (Total)";
-      }
-
-      chart.data.labels = ['Mar 01', 'Apr 01', 'May 01', 'Jun 01'];
-      chart.data.datasets = [];
-      chart.update();
+      // firstSubmission = true;
+      // if (chart == death) {
+      //   chart.options.title.text = "Deaths (Total)";
+      // } else if (chart == hospitalizations) {
+      //   chart.options.title.text = "Hospitalizations (Total)";
+      // }
+      //
+      // chart.data.labels = ['Mar 01', 'Apr 01', 'May 01', 'Jun 01'];
+      // chart.data.datasets = [];
+      // chart.update();
+      location.reload();
     }
 
     function emptyCharts() {
