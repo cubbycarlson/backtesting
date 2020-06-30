@@ -146,12 +146,17 @@ li {
 }
 
 .canvasContainer {
-  margin-top: 50px;
+  margin-top: 20px;
   margin-right: 10px;
 }
 
 i {
   vertical-align: text-bottom;
+}
+
+#errorMessage {
+  margin: 10px;
+  padding-left: 3.5%;
 }
 
 /*# sourceMappingURL=index.css.map */

@@ -187,9 +187,11 @@ function populateUsaDataActual () {
     usaArray.push(row);
   }
 
-  console.log(usaArray)
+  let sortedUsaArray = usaArray.sort((a,b) => {
+    return new Date(a.date) - new Date(b.date)
+  });
 
-  fs.writeFileSync(__dirname + '/public/data/actual/US.json', JSON.stringify(usaArray), err => {
+  fs.writeFileSync(__dirname + '/public/data/actual/US.json', JSON.stringify(sortedUsaArray), err => {
     console.log(err);
     if (err) throw err;
     console.log('updating');

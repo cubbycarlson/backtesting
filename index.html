@@ -1,12 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
 
     <script src="./public/js/states.js"></script>
     <script src="./public/js/models.js"></script>
+    <script src="./public/js/dateToCommit.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./public/css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -62,6 +62,7 @@
     </div>
 
     <button class="btn" id="clearButton" onClick="emptyCharts()">clear all</button>
+    <p id="errorMessage"></p>
 
     <div class="chartContainer" width="800">
       <div class="canvasContainer" id="chartHospitalizationsContainer">
@@ -166,8 +167,10 @@
       }
     }
 
-    let trueDates = [];
+    let errMsg = "SORRY, THERE IS NO DATA AVAIABLE FOR YOUR SELECTION";
+    let errorMessage = document.getElementById("errorMessage");
 
+    let trueDates = [];
 
     var stateOption = document.createElement("OPTION");
     stateOption.label = "(United States)";
@@ -303,12 +306,14 @@
         models.forEach(model => {
           if (model.countyLevel) {
             model.dates.forEach(commitDate => {
-              modelsToShow.push({
-                name: model.name.toUpperCase(),
-                folderName: model.folderName,
-                displayName: model.displayName,
-                commitDate: commitDate
-              })
+              if (commitDate >= "05-06-2020") {
+                modelsToShow.push({
+                  name: model.name.toUpperCase(),
+                  folderName: model.folderName,
+                  displayName: model.displayName,
+                  commitDate: commitDate
+                })
+              }
             })
           }
         })
@@ -575,7 +580,6 @@
                   let hospArray = new Array(trueDates.length);
 
                   trueDates.forEach((label, index) => {
-                    console.log(label);
                     data[0].forEach(row => {
                       if (row.date == label && row.date >= model.commitDate) {
                         deathArray[index] = Math.round(row.death);
@@ -584,7 +588,6 @@
                     })
                   })
 
-                  console.log(deathArray)
 
                   let interventionText = interventions[interventionSelect.value]
                   let selectedIntervention = " " + interventionText;
@@ -622,6 +625,8 @@
 
           let fipsSelected = countiesSelect.value;
           let state = statesSelect.value;
+          let modelSelectedTest = modelsSelect.value;
+          // console.log(modelSelectedTest);
           let countyName = "";
 
           fips[state].forEach(county => {
@@ -666,10 +671,14 @@
 
               let model = modelsToShow[modelsSelect.value]
 
-              fetch("https://data.covidactnow.org/latest/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
+              let snapshot = snapShotDates[model.commitDate]
+
+// https://data.covidactnow.org/snapshot/398/us/counties/06019.STRONG_INTERVENTION.timeseries.json (EXAMPLE)
+              fetch("https://data.covidactnow.org/snapshot/" + snapshot + "/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
                 .then(data => data.json())
                 .then(json => {
-                  let projectionArray = json.actualsTimeseries.map(row => {
+                  // console.log(json)
+                  let projectionArray = json.timeseries.map(row => {
                     return {
                       date: parseDate(row.date),
                       death: row.cumulativeDeaths || 0
@@ -686,6 +695,8 @@
                       }
                     })
                   })
+
+                  // console.log(deathArray)
 
                   let interventionText = interventions[interventionSelect.value]
                   let selectedIntervention = " " + interventionText;
@@ -714,7 +725,11 @@
                   nextColor();
 
                   addModelToLegend(label, listIndex)
-                }).catch(err => console.log(err))
+                }).catch(err => {
+                  errorMessage.innerHTML = errMsg;
+                  console.log(err, "HERE!")
+
+                })
             }).catch(err => console.log(err))
         }
       } else {
@@ -826,11 +841,13 @@
           // load county data onto graph here (not first submission)
 
           let model = modelsToShow[modelsSelect.value]
+          let snapshot = snapShotDates[model.commitDate]
 
-          fetch("https://data.covidactnow.org/latest/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
+          fetch("https://data.covidactnow.org/snapshot/" + snapshot + "/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
+          // fetch("https://data.covidactnow.org/latest/us/counties/" + addLeadingZero(fipsSelected) + "." + canApiInterventions[interventionSelect.value] + ".timeseries.json")
             .then(data => data.json())
             .then(json => {
-              let projectionArray = json.actualsTimeseries.map(row => {
+              let projectionArray = json.timeseries.map(row => {
                 return {
                   date: parseDate(row.date),
                   death: row.cumulativeDeaths || 0

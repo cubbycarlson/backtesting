@@ -37,10 +37,11 @@ let modelsRaw = [
       "06-18-2020",
       "06-19-2020",
       "06-20-2020",
-      "06-22-2020"
+      "06-22-2020",
+      "06-24-2020"
       ],
     hasHospitalizations: true,
-    countryLevel: true,
+    countryLevel: false,
     stateLevel: true,
     countyLevel: true
   },

@@ -45,34 +45,34 @@ fetch(fipsUrl).then(data => data.text())
 
     fips["46102"] = []; // Oglala County, South Dakota is missing
 
-    // // unsuspend & run this code to pull all actual data from NYT
-    // fetch(actualUrl).then(data => data.text())
-    //   .then(text => {
-    //     let lines = text.split("\n")
-    //       .map(a => a.split(","))
-    //       .filter((row, index) => { if (index != 0) return row })
-    //     // [0] date in YYYY-MM-DD, [1] county, [2] state, [3] fips w/ leading 0, [4] cases, [5] deaths
-    //     lines.forEach(line => {
-    //       let date = parseDate(line[0]);
-    //       let fip = line[3];
-    //       let death = line[5];
-    //       let cases = line[4];
-    //       if (fip != "") {
-    //         fips[removeLeadingZero(fip)].push({
-    //           date,
-    //           death,
-    //           cases
-    //         })
-    //       }
-    //     })
-    //
-    //     for (fip in fips) {
-    //       fs.writeFileSync('./public/data/actual/fips/' + fip + '.json', JSON.stringify(fips[fip]), err => {
-    //         if (err) throw err;
-    //         console.log('updating');
-    //       })
-    //     }
-    //   })
+    // unsuspend & run this code to pull all actual data from NYT
+    fetch(actualUrl).then(data => data.text())
+      .then(text => {
+        let lines = text.split("\n")
+          .map(a => a.split(","))
+          .filter((row, index) => { if (index != 0) return row })
+        // [0] date in YYYY-MM-DD, [1] county, [2] state, [3] fips w/ leading 0, [4] cases, [5] deaths
+        lines.forEach(line => {
+          let date = parseDate(line[0]);
+          let fip = line[3];
+          let death = line[5];
+          let cases = line[4];
+          if (fip != "") {
+            fips[removeLeadingZero(fip)].push({
+              date,
+              death,
+              cases
+            })
+          }
+        })
+
+        for (fip in fips) {
+          fs.writeFileSync('./public/data/actual/fips/' + fip + '.json', JSON.stringify(fips[fip]), err => {
+            if (err) throw err;
+            console.log('updating');
+          })
+        }
+      })
 
 
 

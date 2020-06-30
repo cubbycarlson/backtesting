@@ -13,6 +13,7 @@ const dateToCommit = {
 let modelNameObject = {}
 
 const snapShotDates = { // from new API
+    "06-24-2020": "560",
     "06-22-2020": "540",
     "06-20-2020": "537",
     "06-19-2020": "529",
