@@ -62,6 +62,7 @@
     </div>
 
     <button class="btn" id="clearButton" onClick="emptyCharts()">clear all</button>
+    <button class="btn" id="downloadCsv" onClick="downloadCsv()">download csv</button>
     <p id="errorMessage"></p>
 
     <div class="chartContainer" width="800">
@@ -1071,6 +1072,69 @@
       tooltipEl.style.width = "300px"
       }
 
+
+      function downloadCsv() {
+        let csvArray = [];
+        csvArray[0] = ["DATE"];
+        let deathData = death.tooltip._data.datasets
+        let hospitalizationData = hospitalizations.tooltip._data.datasets;
+        deathData.forEach((dataset, index) => {
+          csvArray[0].push(dataset.label + " DEATH");
+          if (index > 0) csvArray[0].push(dataset.label + " DEATH MARGIN OF ERROR");
+          csvArray[0].push(hospitalizationData[index].label + " HOSPITALIZATION");
+          if (index > 0) csvArray[0].push(hospitalizationData[index].label + " HOSPITALIZATION MARGIN OF ERROR");
+        })
+        // csvArray[0][1] is "Actual DEATH"
+        // csvArray[0][2] is "Actual HOSPITALIZATION"
+        // csvArray[0][3] is "X PREDICTED DEATH"
+        // csvArray[0][4] is "X PREDICTED DEATH MARGIN OF ERROR"
+        // csvArray[0][5] is "X PREDICTED HOSPITALIZATIONS"
+        // csvArray[0][6] is "X PREDICTED HOSPITALIZATIONS MARGIN OF ERROR"
+        // csvArray[1][0] is date (start)
+
+        trueDates.forEach(date => csvArray.push([date]));
+
+        deathData[0].data.forEach((data, index) => {
+          csvArray[index+1][1] = data || 0;
+        });
+        hospitalizationData[0].data.forEach((data, index) => {
+          csvArray[index+1][2] = data || 0;
+        });
+
+        deathData.forEach((dataset, i) => {
+          if (i > 0) {
+
+            trueDates.forEach((date, j) => {
+              let counter = 3 + 4*(i-1);
+              let currentDeathData = dataset.data[j];
+              if (currentDeathData == undefined) currentDeathData = 0
+              let currentHospitalizationData = hospitalizationData[i].data[j];
+              if (currentHospitalizationData == undefined) currentHospitalizationData = 0
+
+              csvArray[j+1][counter] = currentDeathData || 0;
+              counter++;
+              csvArray[j+1][counter] = currentDeathData - csvArray[j+1][1];
+              counter++;
+              csvArray[j+1][counter] = currentHospitalizationData || 0;
+              counter++;
+              csvArray[j+1][counter] = currentHospitalizationData - csvArray[j+1][2];
+              counter = 3 + 4*(i-1);
+            })
+          }
+        });
+
+        let csv = ""
+        csvArray.forEach(rowArray => {
+          let row = rowArray.join(",")
+          csv += row + "\n";
+        });
+
+        let hiddenElement = document.createElement("a");
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+        hiddenElement.target = "_blank";
+        hiddenElement.download = death.tooltip._chartInstance.tooltip._chart.options.title.text + ".csv";
+        hiddenElement.click();
+      }
 
   </script>
 </html>
