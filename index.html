@@ -528,9 +528,8 @@
                     spanGaps: true
                   });
                   hospitalizations.update();
+                  addModelToLegend(label, listIndex, colors[colorIndex])
                   nextColor();
-                  addModelToLegend(label, listIndex)
-
                 })
             }).catch(err => console.log(err))
         } else if (countiesSelect.value == -1) { // state selected
@@ -615,8 +614,8 @@
                   });
                   hospitalizations.update();
 
+                  addModelToLegend(label, listIndex, colors[colorIndex])
                   nextColor();
-                  addModelToLegend(label, listIndex)
 
 
                 })
@@ -723,9 +722,8 @@
                     spanGaps: true
                   });
                   hospitalizations.update();
+                  addModelToLegend(label, listIndex, colors[colorIndex])
                   nextColor();
-
-                  addModelToLegend(label, listIndex)
                 }).catch(err => {
                   errorMessage.innerHTML = errMsg;
                   console.log(err, "HERE!")
@@ -775,8 +773,8 @@
                   spanGaps: true
                 });
                 hospitalizations.update();
+                addModelToLegend(label, listIndex, colors[colorIndex])
                 nextColor();
-                addModelToLegend(label, listIndex)
 
               })
         } else if (countiesSelect.value == -1) { // state selected
@@ -824,8 +822,8 @@
                 spanGaps: true
               });
               hospitalizations.update();
+              addModelToLegend(label, listIndex, colors[colorIndex])
               nextColor();
-              addModelToLegend(label, listIndex)
 
             })
 
@@ -890,18 +888,19 @@
                 spanGaps: true
               });
               hospitalizations.update();
+              addModelToLegend(label, listIndex, colors[colorIndex])
               nextColor();
-
-              addModelToLegend(label, listIndex)
             }).catch(err => console.log(err))
         }
       }
     }
 
-    function addModelToLegend(name, index, colors) {
+    function addModelToLegend(name, index, color) {
+      console.log(color);
       var ul = document.getElementById("legend");
       var li = document.createElement("li");
-      let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<i class="material-icons">keyboard_arrow_down</i>'
+      // let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<input type="color"><i class="material-icons">keyboard_arrow_down</i></input>'
+      let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<input type="color" value=' + color + ' onchange="changeColor(this)" />'
       li.innerHTML = liHtml;
       // li.appendChild(document.createTextNode(name));
       li.setAttribute("id", index); // added line
@@ -973,6 +972,29 @@
 
     }
 
+    function changeColor(col) {
+      let li = col.parentNode;
+      let ul = li.parentNode
+      let ulList = Array.from(ul.children)
+      let colorIndex = ulList.indexOf(li) + 1;
+
+      death.data.datasets.forEach((ds, index) => {
+        if (index == colorIndex) {
+          ds.backgroundColor = col.value;
+          ds.borderColor = col.value
+        }
+      })
+      death.update();
+
+      hospitalizations.data.datasets.forEach((ds, index) => {
+        if (index == colorIndex) {
+          ds.backgroundColor = col.value;
+          ds.borderColor = col.value
+        }
+      })
+      hospitalizations.update();
+    }
+
 
     function tooltip (tooltipModel) {
       // Tooltip Element
@@ -1033,11 +1055,11 @@
           var innerHtml = '<thead>';
 
           titleLines.forEach(function(title) {
-              innerHtml += '<tr><th>' + title + "</br>" + modelString + '</th></tr>';
+              innerHtml += '<tr><th>' + title + " (" + modelString + ')</th></tr>';
           });
           innerHtml += '</thead><tbody>';
 
-          let valueTitles = [title + ": ", "Margin of Error: ", "Cumulative Margin of Error: "]
+          let valueTitles = ["Count: ", "Margin of Error: ", "Cumulative Margin of Error: "]
           let values = [value]; // index 0 is actual #
           values[1] = value - actuals[dataIndex] || 0; // index 1 is MOE of that point
           // values[2] = cumulativeDataset[dataIndex] - cumulativeActuals[dataIndex] || 0; // index 2 is MOE cumulative
