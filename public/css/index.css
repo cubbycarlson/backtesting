@@ -412,7 +412,8 @@ select#intervention {
 
 option {
   text-transform: uppercase;
-  background-color: #000000;
+  /* background-color: #000000; */
+  /* color: #000; */
 }
 
 .btn {
