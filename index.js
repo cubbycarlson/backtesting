@@ -38,8 +38,8 @@ app.get("/repop/new", (req, res) => {
 
 app.get('/repop/usa', (req, res) => {
   console.log("request at /repopUSA");
-  populateUsaData.populateUsaData();
-  // populateUsaData.populateUsaDataActual();
+  // populateUsaData.populateUsaData();
+  populateUsaData.populateUsaDataActual();
 
   // res.redirect('/')
   res.send('repop usa!');
@@ -54,3 +54,5 @@ app.get('/pull/actual', (req, res) => {
 app.listen(process.env.PORT || 9999, () => {
   console.log("listening...");
 });
+
+// TO DO: repop new a few times, repop usa prn, repop usa actual, get county data

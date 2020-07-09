@@ -58,11 +58,13 @@ fetch(fipsUrl).then(data => data.text())
           let death = line[5];
           let cases = line[4];
           if (fip != "") {
-            fips[removeLeadingZero(fip)].push({
-              date,
-              death,
-              cases
-            })
+            if (fips[removeLeadingZero(fip)] != undefined) {
+              fips[removeLeadingZero(fip)].push({
+                date,
+                death,
+                cases
+              })
+            }
           }
         })
 
@@ -72,7 +74,7 @@ fetch(fipsUrl).then(data => data.text())
             console.log('updating');
           })
         }
-      })
+      }).catch(err => console.log(err, "ERROR"))
 
 
 
