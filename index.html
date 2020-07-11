@@ -485,7 +485,7 @@
                 spanGaps: true
               });
               hospitalizations.update();
-
+              addModelToLegend("Actual", 0, colors[colorIndex]);
               nextColor();
 
               let model = modelsToShow[modelsSelect.value]
@@ -569,6 +569,7 @@
                 spanGaps: true
               });
               hospitalizations.update();
+              addModelToLegend("Actual", 0, colors[colorIndex]);
               nextColor();
 
               let model = modelsToShow[modelsSelect.value]
@@ -667,6 +668,7 @@
                 spanGaps: true
               });
               hospitalizations.update();
+              addModelToLegend("Actual", 0, colors[colorIndex]);
               nextColor();
 
               let model = modelsToShow[modelsSelect.value]
@@ -954,7 +956,7 @@
       let li = checkbox.parentNode
       let ul = li.parentNode
       let ulList = Array.from(ul.children)
-      let checkIndex = ulList.indexOf(li) + 1;
+      let checkIndex = ulList.indexOf(li);
 
       death.data.datasets.forEach((ds, index) => {
         if (index == checkIndex) {
@@ -976,7 +978,7 @@
       let li = col.parentNode;
       let ul = li.parentNode
       let ulList = Array.from(ul.children)
-      let colorIndex = ulList.indexOf(li) + 1;
+      let colorIndex = ulList.indexOf(li);
 
       death.data.datasets.forEach((ds, index) => {
         if (index == colorIndex) {
