@@ -15,6 +15,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/index.html'));
 })
 
+app.get('/all', (req, res) => {
+  console.log("request at /all");
+  res.sendFile(path.join(__dirname + '/allTable.html'));
+})
+
 app.get('/repop/old', (req, res) => {
   console.log("request at /repop");
   function populateAllData () {
