@@ -36,23 +36,21 @@ app.get("/repop/new", (req, res) => {
   res.send('repop new!')
 });
 
-app.get('/repop/usa', (req, res) => {
-  console.log("request at /repopUSA");
-  // populateUsaData.populateUsaData();
-  populateUsaData.populateUsaDataActual();
-
-  // res.redirect('/')
-  res.send('repop usa!');
-  // res.sendFile(path.join(__dirname + '/html/index.html'));
-})
+app.get("/repop/new/usa", (req, res) => {
+  populateUsaData.populateUsaData();
+  res.send('repop new usa!')
+});
 
 app.get('/pull/actual', (req, res) => {
   getActualData();
-  res.redirect("/");
-})
+  res.send("repop actual!");
+});
+
+app.get('/pull/actual/usa', (req, res) => {
+  populateUsaData.populateUsaDataActual();
+  res.send('repop usa!');
+});
 
 app.listen(process.env.PORT || 9999, () => {
   console.log("listening...");
 });
-
-// TO DO: repop new a few times, repop usa prn, repop usa actual, get county data

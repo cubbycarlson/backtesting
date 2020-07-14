@@ -53,7 +53,7 @@
     </form>
 
     <div id="menu-outer">
-      <h3 id="legendHeader">LEGEND: NOW SHOWING THE FOLLOWING MODELS FOR <span id="location"><i>NONE</i></span>:</h3>
+      <h3 id="legendHeader">LEGEND: <span id="location"></span></h3>
       <div class="table">
         <ul id="legend">
           <!-- models go here -->
@@ -61,7 +61,7 @@
       </div>
     </div>
 
-    <button class="btn" id="clearButton" onClick="emptyCharts()">clear all</button>
+    <button class="btn" id="clearButton" onClick="emptyCharts()">reset</button>
     <button class="btn" id="downloadCsv" onClick="downloadCsv()">download csv</button>
     <p id="errorMessage"></p>
 
@@ -220,13 +220,15 @@
     let modelsToShow = [];
 
     statesSelect.addEventListener("change", (event) => {
-      removeOptions(countiesSelect)
-      removeOptions(modelsSelect)
+      removeOptions(countiesSelect);
+      removeOptions(modelsSelect);
+      statesSelect.disabled = true;
       modelsSelect.disabled = true;
       interventionSelect.disabled = true;
       submitButton.disabled = true;
 
       selectedState = statesSelect.value;
+
       if (selectedState == "US") {
         countiesSelect.disabled = true;
         modelsSelect.disabled = false;
@@ -397,6 +399,10 @@
                   scaleLabel: {
                       display: false,
                       // labelString: "Death (Total)"
+                  },
+                  gridLines: {
+                    borderDash: [4,3],
+                    color: "#a9a9a9"
                   }
               }]
           },
@@ -902,7 +908,7 @@
       var ul = document.getElementById("legend");
       var li = document.createElement("li");
       // let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<input type="color"><i class="material-icons">keyboard_arrow_down</i></input>'
-      let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<input type="color" value=' + color + ' onchange="changeColor(this)" />'
+      let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this) />' + name + '<input class="colorBox" type="color" value=' + color + ' onchange="changeColor(this)" />'
       li.innerHTML = liHtml;
       // li.appendChild(document.createTextNode(name));
       li.setAttribute("id", index); // added line

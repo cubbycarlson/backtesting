@@ -46,7 +46,14 @@ let modelsRaw = [
       "06-30-2020",
       "07-01-2020",
       "07-02-2020",
-      "07-03-2020"
+      "07-03-2020",
+      "07-07-2020",
+      "07-08-2020",
+      "07-09-2020",
+      "07-10-2020",
+      "07-11-2020",
+      "07-12-2020",
+      "07-13-2020"
     ],
     hasHospitalizations: true,
     countryLevel: false,
@@ -65,7 +72,9 @@ let modelsRaw = [
       "04-13-2020",
       "05-20-2020",
       "05-29-2020",
-      "06-06-2020"
+      "06-06-2020",
+      "06-13-2020",
+      "06-27-2020"
       ],
     hasHospitalizations: true,
     countryLevel: true,
@@ -79,7 +88,7 @@ let modelsRaw = [
     displayName: "UCLA",
     hasSubFolders: false,
     // baseUrl: prefix + "/UCLA-SuEIR",
-    dates: ["2020-05-01", "2020-05-10", "2020-05-17", "2020-05-24", "2020-05-31", "2020-06-07", "2020-06-14", "2020-06-21"],
+    dates: ["2020-05-01", "2020-05-10", "2020-05-17", "2020-05-24", "2020-05-31", "2020-06-07", "2020-06-14"], // "2020-06-21" is avaialable but data seems off
     suffix: "-UCLA-SuEIR.csv",
     hasHospitalizations: false,
     countryLevel: true,
@@ -105,7 +114,7 @@ let modelsRaw = [
     displayName: "University of Texas",
     hasSubFolders: false,
     // baseUrl: prefix + "/UT-Mobility",
-    dates: ["2020-04-20", "2020-04-27", "2020-05-04", "2020-05-11", "2020-05-18", "2020-05-25", "2020-06-01", "2020-06-08", "2020-06-15", "2020-06-22"],
+    dates: ["2020-04-20", "2020-04-27", "2020-05-04", "2020-05-11", "2020-05-25", "2020-06-01", "2020-06-08", "2020-06-15", "2020-06-22"], // "2020-05-18" is available but data seems off
     suffix: "-UT-Mobility.csv",
     hasHospitalizations: false,
     countryLevel: true,
