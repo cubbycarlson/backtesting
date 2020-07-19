@@ -420,7 +420,7 @@
       }
     }
 
-    let death = new Chart(deathChart, chartDefaults("Deaths (Total)"))
+    let death = new Chart(deathChart, chartDefaults("Deaths (Daily)"))
     let hospitalizations = new Chart(hospitalizationsChart, chartDefaults("Hospitalizations (Daily)"))
 
     function getJson(folderName, commit, state, intervention, fips = null) {
@@ -468,16 +468,17 @@
               let deathArray = act[0].map(row => row.death)
               let hospArray = act[0].map(row => row.hospitalizations)
 
-              death.options.title.text = "United States Deaths (Total)";
+              death.options.title.text = "United States Deaths (Daily)";
               hospitalizations.options.title.text = "United States Hospitalizations (Daily)"
 
               death.data.labels = convertDates(datesArray);
               hospitalizations.data.labels = convertDates(datesArray);
+
               death.data.datasets.push({
                 label: "Actual",
                 backgroundColor: colors[colorIndex],
                 borderColor: colors[colorIndex],
-                data: deathArray,
+                data: cumulativeToDaily(deathArray),
                 fill: false,
                 spanGaps: true
               });
@@ -497,7 +498,6 @@
               let model = modelsToShow[modelsSelect.value]
               pullData(model.folderName, model.commitDate, "US", interventionSelect.value)
                 .then(data => {
-
                   let deathArray = new Array(trueDates.length);
                   let hospArray = new Array(trueDates.length);
 
@@ -519,7 +519,7 @@
                     label: label,
                     backgroundColor: colors[colorIndex],
                     borderColor: colors[colorIndex],
-                    data: deathArray,
+                    data: cumulativeToDaily(deathArray),
                     fill: false,
                     spanGaps: true
                   });
@@ -552,7 +552,7 @@
               let deathArray = act[0].map(row => row.death)
               let hospArray = act[0].map(row => row.hospitalizations)
 
-              death.options.title.text = states[state] + " Deaths (Total)";
+              death.options.title.text = states[state] + " Deaths (Daily)";
               hospitalizations.options.title.text = states[state] + " Hospitalizations (Daily)"
 
               death.data.labels = convertDates(datesArray);
@@ -561,7 +561,7 @@
                 label: "Actual",
                 backgroundColor: colors[colorIndex],
                 borderColor: colors[colorIndex],
-                data: deathArray,
+                data: cumulativeToDaily(deathArray),
                 fill: false,
                 spanGaps: true
               });
@@ -582,6 +582,8 @@
 
               pullData(model.folderName, model.commitDate, state, interventionSelect.value)
                 .then(data => {
+
+                  console.log(data);
 
                   let deathArray = new Array(trueDates.length);
                   let hospArray = new Array(trueDates.length);
@@ -605,7 +607,7 @@
                     label: label,
                     backgroundColor: colors[colorIndex],
                     borderColor: colors[colorIndex],
-                    data: deathArray,
+                    data: cumulativeToDaily(deathArray),
                     fill: false,
                     spanGaps: true
                   });
@@ -651,7 +653,7 @@
               // let hospArray = act[0].map(row => row.cases)
               let hospArray = []
 
-              death.options.title.text = countyName + ", " + states[statesSelect.value] + " Deaths (Total)";
+              death.options.title.text = countyName + ", " + states[statesSelect.value] + " Deaths (Daily)";
               hospitalizations.options.title.text = countyName + ", " + states[statesSelect.value] + " Hospitalizations (Daily)"
 
               death.data.labels = convertDates(datesArray);
@@ -660,7 +662,7 @@
                 label: "Actual",
                 backgroundColor: colors[colorIndex],
                 borderColor: colors[colorIndex],
-                data: deathArray,
+                data: cumulativeToDaily(deathArray),
                 fill: false,
                 spanGaps: true
               });
@@ -715,7 +717,7 @@
                     label: label,
                     backgroundColor: colors[colorIndex],
                     borderColor: colors[colorIndex],
-                    data: deathArray,
+                    data: cumulativeToDaily(deathArray),
                     fill: false,
                     spanGaps: true
                   });
@@ -766,7 +768,7 @@
                   label: label,
                   backgroundColor: colors[colorIndex],
                   borderColor: colors[colorIndex],
-                  data: deathArray,
+                  data: cumulativeToDaily(deathArray),
                   fill: false,
                   spanGaps: true
                 });
@@ -815,7 +817,7 @@
                 label: label,
                 backgroundColor: colors[colorIndex],
                 borderColor: colors[colorIndex],
-                data: deathArray,
+                data: cumulativeToDaily(deathArray),
                 fill: false,
                 spanGaps: true
               });
@@ -881,7 +883,7 @@
                 label: label,
                 backgroundColor: colors[colorIndex],
                 borderColor: colors[colorIndex],
-                data: deathArray,
+                data: cumulativeToDaily(deathArray),
                 fill: false,
                 spanGaps: true
               });
@@ -904,7 +906,6 @@
     }
 
     function addModelToLegend(name, index, color) {
-      console.log(color);
       var ul = document.getElementById("legend");
       var li = document.createElement("li");
       // let liHtml = '<input type="checkbox" class="checkbox" checked onchange=check(this)>' + name + '<input type="color"><i class="material-icons">keyboard_arrow_down</i></input>'
@@ -1109,10 +1110,10 @@
         let deathData = death.tooltip._data.datasets
         let hospitalizationData = hospitalizations.tooltip._data.datasets;
         deathData.forEach((dataset, index) => {
-          csvArray[0].push(dataset.label + " DEATH");
-          if (index > 0) csvArray[0].push(dataset.label + " DEATH MARGIN OF ERROR");
-          csvArray[0].push(hospitalizationData[index].label + " HOSPITALIZATION");
-          if (index > 0) csvArray[0].push(hospitalizationData[index].label + " HOSPITALIZATION MARGIN OF ERROR");
+          csvArray[0].push(dataset.label + " DEATH (DAILY)");
+          if (index > 0) csvArray[0].push(dataset.label + " DEATH (DAILY) MARGIN OF ERROR");
+          csvArray[0].push(hospitalizationData[index].label + " HOSPITALIZATION (DAILY)");
+          if (index > 0) csvArray[0].push(hospitalizationData[index].label + " HOSPITALIZATION (DAILY) MARGIN OF ERROR");
         })
         // csvArray[0][1] is "Actual DEATH"
         // csvArray[0][2] is "Actual HOSPITALIZATION"
@@ -1164,6 +1165,41 @@
         hiddenElement.target = "_blank";
         hiddenElement.download = death.tooltip._chartInstance.tooltip._chart.options.title.text + ".csv";
         hiddenElement.click();
+      }
+
+      function cumulativeToDaily (cumArray) {
+        let dailyArray = [];
+        for (let i = 0; i < cumArray.length; i++) {
+          if (i === 0) {
+            dailyArray[i] = cumArray[i]
+          } else {
+            if (cumArray[i] == undefined) {
+              dailyArray[i] == undefined
+            } else if (cumArray[i-1] == undefined) {
+              dailyArray[i] = cumArray[i] - cumArray[i-4];
+            } else {
+              dailyArray[i] = cumArray[i] - cumArray[i-1];
+            }
+          }
+        }
+        return dailyArray
+      }
+
+      function rollingAverage(arr, days = 7) {
+        let newArr = [];
+        for (let i = 0; i < arr.length; i++) {
+          if (i < days) {
+            newArr[i] = arr[i];
+          } else {
+            let sum = 0;
+            for (let j = i; j > i - days; j--) {
+              console.log(arr[j])
+              sum += arr[j]
+            }
+            newArr[i] = sum/days
+          }
+        }
+        return newArr;
       }
 
   </script>
