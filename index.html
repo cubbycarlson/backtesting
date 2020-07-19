@@ -1168,6 +1168,7 @@
       }
 
       function cumulativeToDaily (cumArray) {
+        console.log(cumArray)
         let dailyArray = [];
         for (let i = 0; i < cumArray.length; i++) {
           if (i === 0) {
@@ -1182,6 +1183,9 @@
             }
           }
         }
+        dailyArray.forEach((data, index) => {
+          if (data < 0) dailyArray[index] = 0
+        })
         return dailyArray
       }
 
