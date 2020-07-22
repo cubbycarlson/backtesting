@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="./public/css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
+
 
     <style>
       div {
@@ -415,6 +419,33 @@
             // mode: "index"
             enabled: false,
             custom: tooltip
+          },
+
+          plugins: {
+            zoom: {
+                // Container for pan options
+                pan: {
+                    // Boolean to enable panning
+                    enabled: true,
+
+                    // Panning directions. Remove the appropriate direction to disable
+                    // Eg. 'y' would only allow panning in the y direction
+                    mode: 'x'
+                },
+
+                // Container for zoom options
+                zoom: {
+                    // Boolean to enable zooming
+                    enabled: true,
+                    // drag: true,
+
+                    // Zooming directions. Remove the appropriate direction to disable
+                    // Eg. 'y' would only allow zooming in the y direction
+                    mode: 'x',
+                    speed: 0.0001,
+                    // sensitivity: 10,
+                }
+            }
           }
         }
       }
